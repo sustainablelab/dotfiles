@@ -22,7 +22,8 @@ How to install plugins
     ```bash
     $ mkdir -p ~/.vim/pack/bundle/start/
     $ cd ~/.vim/pack/bundle/start/
-    $ git clone https://github.com/tpope/vim-sensible.git
+    $ git clone https://github.com/scrooloose/nerdtree.git
+    $ git clone https://github.com/webdevel/tabulous.git
     ```
 
 References:
