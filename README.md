@@ -57,6 +57,7 @@ Install handy utilities:
 
 Note the location of virtualenvwrapper.sh.
 Or find it with `find`:
+
     ```bash
     $ find /usr/local/bin -type f -name "virtualenvwrapper.sh"
     ```
@@ -76,11 +77,13 @@ Edit your .profile to run the virtualenvwrapper.sh script:
     ```
 
 Create the PROJECT_HOME folder:
+
     ```bash
     $ mkdir -p $HOME/python/dev
     ```
 
 Source your .profile:
+
     ```bash
     $ . .profile
     ```
@@ -91,6 +94,7 @@ Source your .profile:
     `virtualenvwrapper` commands are invoked, e.g., `mkproject`.
 
 Make a test project:
+
     ```bash
     $ mkproject nevermind
     ```
@@ -102,7 +106,10 @@ Make a test project:
     `python` now calls `python3` in the `nevermind` project.
 
 Try installing some packages in the virtualenv:
+
     ```bash
     $ pip install numpy
     $ pip install maptlotlib
     $ pip install pyqt5
+    ```
+
