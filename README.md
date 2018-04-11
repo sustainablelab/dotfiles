@@ -77,8 +77,8 @@ quickly with `find`:
 
     ```bash
     $ find /usr/local/bin -type f -name "virtualenvwrapper.sh"
-    ```
     usr/local/bin/virtualenvwrapper.sh
+    ```
 
 ## Add `virtualenv` environment variables and source the script
 Edit your `.profile` (located in `$HOME`) to run the `virtualenvwrapper.sh`
@@ -86,11 +86,9 @@ script:
 
     ```bash
     $ vim .profile
-    ```
 
-Add these lines to the end of your .profile:
+    =====[ Add these lines to the end of your `.profile` ]=====
 
-    ```bash
     export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
     export WORKON_HOME=$HOME/python/.virtualenvs
     export PROJECT_HOME=$HOME/python/dev
