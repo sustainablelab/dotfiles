@@ -106,11 +106,16 @@ Source your `.profile`:
     ```bash
     $ . .profile
     ```
-    The first time the `virtualenvwrapper.sh` script runs, the `.virtualenvs`
-    folder is created and several files are placed there.
-    Changing the value of `WORKON_HOME` does not affect this location.
-    The `.virtualenvs` folder set by `WORKON_HOME` is used when
-    `virtualenvwrapper` commands are invoked, e.g., `mkproject`.
+
+### The `.virtualenvs` in your `WORKON_HOME` location is the one that matters
+The first time the `virtualenvwrapper.sh` script runs, a `.virtualenvs` folder
+is created in the `$HOME` folder and several files are placed there. I'm not
+sure if these files are ever used because none of the `virtualenvwrapper`
+commands add folders to this `.virtualenvs` folder.
+
+There is another `.virtualenvs` folder created at the location set by
+`WORKON_HOME`. It is created when `virtualenvwrapper` commands are invoked,
+e.g., `mkproject`, and then project folders are placed there.
 
 # Making a new project with `virtualenvwrapper`
 Make a test project `nevermind`:
