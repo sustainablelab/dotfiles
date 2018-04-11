@@ -5,6 +5,7 @@ Cloning this repository takes care of the `.vimrc` and the files it references:
     * `badwolf.vim`: my default scheme
     * `deus.vim`: for notes
     * `duoduo.vim`: for Vim script
+
 The `.vimrc` also depends on two plugins: `nerdtree` and `tabulous`.
 ## Vim plugins in my setup
 After cloning, add the vim plugins to the `/.vim/pack/bundle/start/` directory
@@ -25,7 +26,7 @@ to match the tree below:
 
 ## How to install plugins
 From *Vim help* and *Stack Overflow*, this seems to be the preferred method as
-of `Vim 8.0`.
+of `Vim 8.0`. It does not require a plugin manager.
 
     ```bash
     $ mkdir -p ~/.vim/pack/bundle/start/
@@ -47,7 +48,7 @@ StackOverflow:
     https://vi.stackexchange.com/questions/613/how-do-i-install-a-plugin-in-vim-vi
 
 # Python Setup
-## Install handy utilities and `virtualenv` tools
+## Install shell utilities, `pip3`, and `virtualenv` tools
 * tree
 * pip3
 * virtualenv
@@ -68,9 +69,11 @@ StackOverflow:
     $ sudo pip3 install virtualenvwrapper
     ```
 
+### Find `virtualenvwrapper.sh`
 Note the location of the `virtualenvwrapper.sh` script.
-If you missed it during the install, it is probably in `/usr/local/bin`.
-### Using `find` to find `virtualenvwrapper.sh`
+
+If you missed it during the install, it is probably in `/usr/local/bin`. Find it
+quickly with `find`:
 
     ```bash
     $ find /usr/local/bin -type f -name "virtualenvwrapper.sh"
@@ -78,7 +81,8 @@ If you missed it during the install, it is probably in `/usr/local/bin`.
     usr/local/bin/virtualenvwrapper.sh
 
 ## Add `virtualenv` environment variables and source the script
-Edit your `.profile` to run the `virtualenvwrapper.sh` script:
+Edit your `.profile` (located in `$HOME`) to run the `virtualenvwrapper.sh`
+script:
 
     ```bash
     $ vim .profile
@@ -110,19 +114,21 @@ Source your `.profile`:
     The `.virtualenvs` folder set by `WORKON_HOME` is used when
     `virtualenvwrapper` commands are invoked, e.g., `mkproject`.
 
-## Making a new project with `virtualenvwrapper`
+# Making a new project with `virtualenvwrapper`
 Make a test project `nevermind`:
 
     ```bash
     $ mkproject nevermind
     ```
 
-### Path creation
+Path creation:
+
 * The `WORKON_HOME` path is created if it does not exist.
 * For some reason, the `PROJECT_HOME` path does not get created, which is why
   you manually created earlier.
 
-### Results of `mkproject`
+Results of `mkproject`:
+
 * Project `nevermind` is now the active project.
 * `pip` and `python` alias to `pip3` and `python3` in the `nevermind` project.
 
@@ -134,7 +140,7 @@ Try installing some packages in the virtualenv:
     $ pip install pyqt5
     ```
 
-## Picking up an existing project with `virtualenvwrapper`
+# Picking up an existing project with `virtualenvwrapper`
 Clone project `whatever` into the `dev` folder:
 
     ```bash
@@ -157,7 +163,8 @@ And bind it to the project:
     Setting project for whatever to /cygdrive/c/chromation-dropbox/Dropbox/python/dev/junk
     ```
 
-There are no packages installed yet besides the barebones:
+There are no packages installed yet besides the barebones. Confirm this with
+`pip list`:
 
     ```bash
     $ pip list
@@ -174,13 +181,14 @@ A `requirements.txt` is generated with `pip` like this:
     $ deactivate
     ```
 
-But a requirements.txt file can also be written from scratch like this:
+But a `requirements.txt` file can also be written from scratch like this:
 
     ```bash
+    $ cd $HOME/python/dev/whatever
     $ vim requirements.txt
     ```
 
-    =====[ requirements.txt ]=====
+    =====[ file `requirements.txt` in your `whatever` folder ]=====
     numpy
     matplotlib
     pyqt5
@@ -193,7 +201,8 @@ Now `pip list` shows several packages: `numpy`, `matplotlib`, and `pyqt5`, plus
 all the packages they depended on.
 
 ## Observations using 'pip install' on Windows and Linux
-Installation is very fast on an Ubuntu virtual box and `pyqt5` installs without
-any problems. Installation is slow on Cygwin and `pyqt5` does not install, even
-with `pyqt`-related packages installed with the Cygwin package manager.
+* Installation is very fast on an Ubuntu virtual box and `pyqt5` installs
+  without any problems.
+* Installation is slow on Cygwin and `pyqt5` does not install, even with
+  `pyqt`-related packages installed with the Cygwin package manager.
 
