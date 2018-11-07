@@ -33,6 +33,8 @@ of `Vim 8.0`. It does not require a plugin manager.
     $ cd ~/.vim/pack/bundle/start/
     $ git clone https://github.com/scrooloose/nerdtree.git
     $ git clone https://github.com/webdevel/tabulous.git
+    $ git clone https://github.com/tpope/vim-commentary.git
+    $ git clone https://github.com/tpope/vim-surround.git
     ```
 
 Check the Vim variable `runtimepath` to see if the plugin is running:
@@ -324,61 +326,100 @@ $ python -m pip install numpy
 - I installed pyqt5 in PowerShell using `pip3`
 
 # Picking up an existing project with `virtualenvwrapper`
-Clone project `whatever` into the `dev` folder:
 
-    ```bash
-    $ cd $PROJECT_HOME
-    $ git clone https://github.com/whatever.git
-    $ cd whatever
-    ```
+## Summary
 
-Set up a virtualenv for project `whatever`:
+- `git clone {project-url}` from a repo into your local `dev` folder
+- `mkvirtualenv {project-name}`
+- `cd` into the project folder
+- `setvirtualenvproject` to bind the local `.virtualenvs` folders to the `dev` project
+  folder.
 
-    ```bash
-    $ mkvirtualenv whatever
-    ```
+## Details
+- Clone project `whatever` into the `dev` folder:
+```bash
+$ cd $PROJECT_HOME
+$ git clone https://github.com/whatever.git
+$ cd whatever
+```
 
-And bind it to the project:
+- Set up a virtualenv for project `whatever`:
+```bash
+$ mkvirtualenv whatever
+```
+```
+Using base prefix '/usr'
+New python executable in /cygdrive/c/chromation-dropbox/Dropbox/python/.virtualenvs/whatever/bin/python3
+Also creating executable in /cygdrive/c/chromation-dropbox/Dropbox/python/.virtualenvs/whatever/bin/python
+Installing setuptools, pip, wheel...done.
+virtualenvwrapper.user_scripts creating /cygdrive/c/chromation-dropbox/Dropbox/python/.virtualenvs/whatever/bin/predeactivate
+virtualenvwrapper.user_scripts creating /cygdrive/c/chromation-dropbox/Dropbox/python/.virtualenvs/whatever/bin/postdeactivate
+virtualenvwrapper.user_scripts creating /cygdrive/c/chromation-dropbox/Dropbox/python/.virtualenvs/whatever/bin/preactivate
+virtualenvwrapper.user_scripts creating /cygdrive/c/chromation-dropbox/Dropbox/python/.virtualenvs/whatever/bin/postactivate
+virtualenvwrapper.user_scripts creating /cygdrive/c/chromation-dropbox/Dropbox/python/.virtualenvs/whatever/bin/get_env_details
+```
+- also notice the `bash` prompt is now prefaced with the project name in
+  parentheses
 
-    (cwd is `$HOME/python/dev/whatever`)
-    ```bash
-    $ setvirtualenvproject
-    Setting project for whatever to /cygdrive/c/chromation-dropbox/Dropbox/python/dev/junk
-    ```
+- Bind the virtual environment to the cloned project:
+- (pwd is `$HOME/python/dev/whatever` or `$CHROMATION_HOME/python/dev/whatever`)
+```bash
+$ setvirtualenvproject
+```
+```
+Setting project for whatever to /cygdrive/c/chromation-dropbox/Dropbox/python/dev/whatever
+```
 
-There are no packages installed yet besides the barebones. Confirm this with
+- There are no packages installed yet besides the barebones. Confirm this with
 `pip list`:
+```bash
+$ pip list
+```
+```
+Package    Version
+---------- -------
+pip        18.1
+setuptools 40.5.0
+wheel      0.32.2
+```
 
-    ```bash
-    $ pip list
-    ```
+- If the goal of cloning the project involves running the cloned project, use
+  the requirements.txt file to install the project packages, as described next.
+- But often I am cloning a project developed on my Ubuntu virtual machine. In
+  this case, I was using Ubuntu because I could not install the necessary
+  Python packages in my Cygwin environment. In that context, the clone is for:
+    - *saving* the project in the Chromation Dropbox
+    - providing read access to the project files without having to enter Ubuntu
+    - Examples of such projects are:
+        - `simulate-smt-build`
+        - `map-fit`
 
-Install the necessary pacakges with a `requirements.txt` or manually install
-with `pip install {pkg1} {pkg2} {etc.}':
+Install the necessary packages with a `requirements.txt` or manually install
+with `pip install {pkg1} {pkg2} {etc.}`:
 
 A `requirements.txt` is generated with `pip` like this:
 
-    ```bash
-    $ workon nevermind
-    $ pip3 freeze > requirements.txt
-    $ deactivate
-    ```
+```bash
+$ workon nevermind
+$ pip3 freeze > requirements.txt
+$ deactivate
+```
 
 But a `requirements.txt` file can also be written from scratch like this:
 
-    ```bash
-    $ cd $HOME/python/dev/whatever
-    $ vim requirements.txt
-    ```
-
-    =====[ file `requirements.txt` in your `whatever` folder ]=====
-    numpy
-    matplotlib
-    pyqt5
-
-    ```bash
-    $ pip3 install -r requirements.txt
-    ```
+```bash
+$ cd $HOME/python/dev/whatever
+$ vim requirements.txt
+```
+```
+=====[ file `requirements.txt` in your `whatever` folder ]=====
+numpy
+matplotlib
+pyqt5
+```
+```bash
+$ pip3 install -r requirements.txt
+```
 
 Now `pip list` shows several packages: `numpy`, `matplotlib`, and `pyqt5`, plus
 all the packages they depended on.
