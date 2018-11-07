@@ -1,3 +1,7 @@
+" see usr_21 -- sessions and views!
+" use views to set the height of output windows
+" use sessions to save everything exactly as you want it
+" use viminfo to save marks
 " Custom Vim settings.
 " Author: Mike Gazes
 " Date: 2018-01-03
@@ -58,6 +62,23 @@ set showcmd " Show current command in lower right corner.
 set showmode " Show which mode you are in (e.g., displays -- INSERT --)
 set splitright " Vertical splits open on the right. No affect on NERDTree :)
 
+"=====[ Speed Slow Lag Delay ]=====
+" This fixes slow scroll in my .vimrc.
+set synmaxcol=160 "default is 3000
+    " This the number of columns checked for syntax highlighting
+    " See files:
+    "command		file ~
+    ":syntax enable	$VIMRUNTIME/syntax/syntax.vim
+    ":syntax on		$VIMRUNTIME/syntax/syntax.vim
+    ":syntax manual	$VIMRUNTIME/syntax/manual.vim
+    ":syntax off		$VIMRUNTIME/syntax/nosyntax.vim
+    " See :h syntax-loading
+" For slow typing in large markdown files, the issue is folding:
+" Markdown files load with fold-expr.
+" Use mapping ;zm to switch to fold-manual. Fold calculation stops.
+" You have to hammer ;zm every time you come back to the buffer.
+" Hammer ;ze to go back to fold calculation (fold-expr).
+
 set hlsearch
 nohlsearch " So that sourcing the vimrc does not highlight the last search.
 set magic
@@ -78,6 +99,10 @@ set ignorecase smartcase
     " set path+=**
     " You can tack this onto the end of any path. No reason to slow yourself
     " down by allowing recursive dives for everything.
+set runtimepath+=~/.vim/pack/bundle/dev
+    "I have an `autoload` folder here for libs (see h: write-library-script)
+    "+= is OK:
+        "Repeatedly sourcing the .vimrc does not append duplicate paths.
 set path=.,/usr/include,,
     " This is the default path: path=.,/usr/include,,
     " I need to set the default path directly so that sourcing my vimrc does not
@@ -85,7 +110,7 @@ set path=.,/usr/include,,
 let default_path=&path
     " Restore the default path with:
     " let &path=default_path
-set path-=/usr/include
+"set path-=/usr/include
     " Eliminate the /usr/include path so that Vim uses the avr-gcc path for
     " stdint.h.
 " How to add paths:
@@ -97,6 +122,17 @@ set path-=/usr/include
     " Syntax:
     " let path_alias='your_POSIX_path_here\ with_backslash_to\ escape \spaces'
     " let &path = &path . ',' . path_alias
+let glib_include='/usr/include/glib-2.0'
+let &path = &path . ',' . glib_include
+let mock_c_path='/cygdrive/c/chromation-dropbox/Dropbox/c/TddFramework/mock-c'
+set tags=./tags,tags
+let &tags = &tags . ',' . mock_c_path . '/tags'
+let mock_c_include=mock_c_path . '/include'
+let &path = &path . ',' . mock_c_include
+let mock_c_test=mock_c_path . '/test'
+let &path = &path . ',' . mock_c_test
+let unity_include=mock_c_path . '/test/unity'
+let &path = &path . ',' . unity_include
 let avr_include='/cygdrive/c/Program\ Files\ (x86)/Atmel/Studio/7.0/toolchain/avr8/avr8-gnu-toolchain/avr/include'
 let &path = &path . ',' . avr_include
     " I decided atmega328_pack was not necessary.
@@ -116,8 +152,19 @@ let &path = &path . ',' . gplusplus_include . '/x86_64-pc-cygwin'
 " match, e.g., gf on stdbool.h opens the clang version, 2gf opens the gcc
 " version, and 3gf opens the g++ version.
 "---Below here: add/remove paths depending on what project you are on---
-let path_OocKlemens='/cygdrive/c/chromation-dropbox/Dropbox/c/TddFramework/TestDrive/OocKlemens/**'
-let &path = &path . ',' . path_OocKlemens
+let path_LIS770i_lib='/cygdrive/c/chromation-dropbox/Dropbox/c/LIS-770i/lib/**'
+let &path = &path . ',' . path_LIS770i_lib
+    "let path_mock_object='/cygdrive/c/chromation-dropbox/Dropbox/c/TddFramework/TestDrive/mock-object/**'
+    "let &path = &path . ',' . path_mock_object
+
+    "let path_kata_func_ptr='/cygdrive/c/chromation-dropbox/Dropbox/c/TddFramework/TestDrive/kata/func-ptr/**'
+    "let &path = &path . ',' . path_kata_func_ptr
+    "let path_try_min_unit='/cygdrive/c/chromation-dropbox/Dropbox/c/TddFramework/TestDrive/kata/TryMinUnit/**'
+    "let &path = &path . ',' . path_try_min_unit
+    "let path_test_doubles='/cygdrive/c/chromation-dropbox/Dropbox/c/TddFramework/TestDrive/test-doubles/**'
+    "let &path = &path . ',' . path_test_doubles
+    "let path_OocKlemens='/cygdrive/c/chromation-dropbox/Dropbox/c/TddFramework/TestDrive/OocKlemens/**'
+    "let &path = &path . ',' . path_OocKlemens
     "let path_KlemensExamples='/cygdrive/c/chromation-dropbox/Dropbox/c/TddFramework/TestDrive/KlemensExamples/**'
     "let &path = &path . ',' . path_KlemensExamples
     "let path_RedGreen='/cygdrive/c/chromation-dropbox/Dropbox/c/TddFramework/TestDrive/RedGreen/**'
@@ -145,8 +192,8 @@ set laststatus=2 " I like status lines. I kept hitting <C-g>.
     " 1: only if there are at least two windows (default)
     " 0: never
 
-set foldmethod=indent " maybe =syntax?
-set foldignore=
+set foldmethod=indent " maybe =syntax?, nope indent is what .vimrc needs
+"set foldignore=
     " Do not ignore any symbols when calculating folds. Default is '#'.
 "---START RECOVERED FROM 2-4-2018 .VIMRC---
 " Show the fold +/- in the number column with the minimum column width.
@@ -174,9 +221,14 @@ nnoremap <leader>, ;
 nnoremap <leader>rh :syntax sync fromstart<CR>
     ":h syn-sync-first
     "Refresh syntax highlighting.
+
 "---C-tdd Environment---
+execute 'source ~/.vim/pack/bundle/dev/expectmocking/expectmocking.vim'
 "---Cscope Porcelain---
-nnoremap <leader>cs :call UpdateCtags()<CR>:call CscopeCreateConnection()<CR>
+" the tags are used by omnicompletion
+" see h: ins-completion-menu and h: popupmenu-keys and h: ft-c-omni
+" look back at &path and see how I added other the tags files 
+nnoremap <leader>cs :call ctags#Update()<CR>:call CscopeCreateConnection()<CR>
 function! CscopeCreateConnection()
     "---Overview---
         " cscope is like ctags, but more powerful.
@@ -242,7 +294,14 @@ function! CscopeCreateConnection()
         endif
     endif
 endfunction
-nnoremap <leader>cu :call UpdateCscopeDatabase()<CR>:call UpdateCtags()<CR>
+nnoremap <leader>cu :call UpdateTagsAndCscope()<CR>
+function! UpdateTagsAndCscope()
+    echomsg ">+.+< °°° updating tags..."
+    call ctags#Update()
+    echomsg "<-.-> °°° updating cscope database..."
+    call UpdateCscopeDatabase()
+    echomsg ">^.^<   Update finished!"
+endfunction
 function! UpdateCscopeDatabase()
     "Update cscope database file (cscope.out) in the root of the Active Project.
         "---Purpose---
@@ -258,8 +317,8 @@ function! UpdateCscopeDatabase()
             "If you update right after searching for symbols/text, the locations
             "are still loaded in the quickfix window so you can still jump there
             "with the same commands, and Vim notifies you the item is deleted.
-    redraw
-    echomsg "<-.-> °°° updating cscope database..."
+    "redraw
+    "echomsg "<-.-> °°° updating cscope database..."
     call system("cscope -R -b")
         "cscope -b -- create a new cscope.out at the Vim pwd
         "This overwrites any existing cscope.out.
@@ -267,10 +326,15 @@ function! UpdateCscopeDatabase()
     silent cscope reset
         "'cscope reset' reconnects the project with its new cscope.out.
 endfunction
-function! UpdateCtags()
+function! OldUpdateCtags()
     redraw
     echomsg ">+.+< °°° updating tags..."
-    call system("ctags -R .")
+    "call system("ctags -R .")
+    call system("ctags --c-types=+l -R .")
+    "This includes locals in the file, by default, locals are not tagged.
+    "See the list of options:
+    "$ ctags --list-kinds=c
+    "And use the above --c-types=+ to turn these on.
     redraw
     echomsg ">^.^<   Update finished!"
 endfunction
@@ -456,22 +520,1092 @@ nnoremap <M-?> :cprevious<CR>zv
     "[x] Limit the size of the quickfix window to something reasonable like 10
     "lines.
 "---Test Wiring Porcelain---
+function! StringExistsInFile(string, filepath)
+    silent execute "noswapfile edit " . a:filepath
+    let line_num = search(a:string,'w')
+    silent execute "noswapfile buffer #"
+    return line_num
+endfunction
+function! DetermineDependedOnLib()
+    "This has been incorporated into expectmocking.vim. It is here because it
+    "shows up in the .vimrc.
+    let depended_on_lib_header = matchstr(getline('.'),'_MOCK_.*_H;')[0:-2]
+    if depended_on_lib_header != ''
+        "An explicit _MOCK_.*_H; on this line determines the DOF lib.
+        execute 'tag ' . depended_on_lib_header
+            " Jump to the header file.
+        let depended_on_lib = expand("%:t:r")[5:]
+            " Get the lib name from the file name
+        execute "noswapfile buffer #"
+            " return to the test_ file
+        return depended_on_lib
+    endif
+    let save_cursor = getcurpos()
+    let line_num = search('#include "mock_', 'w')
+    if line_num == 0
+        echo "There are no #include mocked lib headers."
+        call setpos('.', save_cursor)
+            " restore the cursor to the original position in the window
+        return ''
+    endif
+    let only_one_mocked_lib = line_num == search('#include "mock_', 'w')
+    call setpos('.', save_cursor)
+    if only_one_mocked_lib
+        call search('#include "mock_', 'w')
+        let mocked_lib = matchstr(getline('.'),'"mock_.*"')[6:-4]
+        call setpos('.', save_cursor)
+        return mocked_lib
+    endif
+    echo "There is more than one #include mocked lib header."
+    return ''
+endfunction
+let add_silently = 0 " announce adding a function declaration to a header
+nnoremap <leader>ym :call YankIntoMock()<CR>
+nnoremap <leader>fh :call expectmocking#AddFuncDeclToHeader(add_silently)<CR>
+"Add [F]unction declaration to [H]eader.
+nnoremap <leader>eh :call expectmocking#AddExternDeclToHeader(add_silently)<CR>
+"Add [E]xtern function pointer declaration to [H]eader.
+nnoremap <leader>me :call MockExpectedCall()<CR>
+" [Mock] [E]xpected call:
+" Warning: make sure you are in the project directory before invoking.
+" - creates Mock functions in mock_DOL to record the call
+"   - Expect_DOF defined for use in test code
+"   - DOF_Stubbed defined for test fixture to reassign DOF function pointer from
+"     definition in DOL to this definition in mock_DOL
+" - create DOF fp in DOL and private implementation of DOF in DOL
+"   - DOF fp declared with extern for use anywhere in the project
+" - adds mock-fixturing calls (SetUpMock_FUT, TearDownMock_FUT) to test fixture
+" - defines mock-fixturing calls in test_LUT_MockUps.c
+"   - adds calls to Stub and Unstub the DOF
+"   - SetUpMock_FUT and TearDownMock_FUT defined for use in test code
+"TODO:
+"test_LUT_MockUps.c does not auto-include the headers
+"#include "test_LUT_MockUps.h"       // SetUpMock_FUT, TearDownMock_FUT
+"#include "DOL.h"                    // lib DOF
+"#include "DOL2.h"                   // lib DOF2
+"#include "mock_DOL.h"               // lib DOF_Stubbed
+"#include "mock_DOL2.h"              // lib DOF2_Stubbed
+"#include <Mock.h>                   // Class: Mock
+let s:happy_kitty     = ">\^.\^<"
+let s:sad_kitty       = "<\*.\*>"
+let s:trippy_kitty    = ">@.@<"
+let s:waiting_kitty   = "-O.O-"
+let s:default_kitty   = " v.v "
+let s:invisible_kitty = "     "
+function! MockExpectedCall()
+    silent execute 'messages clear'
+    if !file#ThisIsC()                     || file#UnsavedChanges()
+     \ || !expectmocking#ThisIsATestFile() || !expectmocking#ThisLineExpectsACall()
+        echomsg s:default_kitty 'Nothing was done 1.0.'
+        return
+    endif
+    "echomsg s:happy_kitty ';ym = yummy mocks! Updating tags first...'
+    silent call ctags#Update() " update the tags file before using it
+    let testfile = expand("%:p")
+    let l:add_silently = 1 "do not announce adding a function declaration to a header
+    "TODO: write unit test
+        "echomsg s:happy_kitty 'Test file: `' . testfile . '`' | return
+    "=====[ Make sure everything is in place before adding code ]=====
+    function! s:CreateFut()
+        "Return a dict for the function under test (FUT).
+        let fut = {}
+        let fut.lib = expectmocking#NameOfLut()
+        let fut.name = expectmocking#NameOfFut()
+        let fut.SetUp        = 'SetUp_'        . fut.name
+        let fut.TearDown     = 'TearDown_'     . fut.name
+        let fut.SetUpMock    = 'SetUpMock_'    . fut.name
+        let fut.TearDownMock = 'TearDownMock_' . fut.name
+        return fut
+    endfunction
+    let fut = s:CreateFut()
+    if fut.name == ''
+        echomsg s:sad_kitty 'Cannot determine name of function under test.'
+        echomsg s:default_kitty 'Nothing was done 1.1.'
+        return
+    endif
+    "TODO: write unit test
+        "echomsg s:happy_kitty     'Found name of function under test: `' .
+        "                         \ fut.name . '` in lib `' . fut.lib . '`.'
+        "return
+    if !expectmocking#IsDefined(fut.SetUp)
+        echomsg s:sad_kitty '`' . fut.SetUp . '` is not defined.'
+        echomsg s:default_kitty 'Nothing was done 1.2.'
+        return
+    endif
+    if !expectmocking#IsDefined(fut.TearDown)
+        echomsg s:sad_kitty '`' . fut.TearDown . '` is not defined.'
+        echomsg s:default_kitty 'Nothing was done 1.2.'
+        return
+    endif
+    "TODO: write unit test
+        "echomsg s:happy_kitty 'Fixtures: `'. fut.SetUp .'` and `'. fut.TearDown .'` are defined.'
+        "echomsg s:invisible_kitty 'They will call: `'. fut.SetUpMock .'` and `'. fut.TearDownMock .'`.'
+        "return
+    function! s:CreateDof()
+        "Return a dict with info about the depended on function (DOF).
+        let dof = {}
+        let dof.sig      = expectmocking#ExpectedCallSig(getline('.'))
+        let dof.lib      = expectmocking#NameOfDol()
+        let dof.name     = expectmocking#FuncName(dof.sig)
+        let dof.args     = expectmocking#FuncArgs(dof.sig)
+        let dof.numargs  = expectmocking#NumArgs(dof.sig)
+        let dof.argtypes = expectmocking#ReplaceArgsWithTypes(dof.sig)
+        let dof.mockargs = expectmocking#AddDummyArgsToTypes(dof.argtypes)
+        let dof.dumbargs = expectmocking#ReplaceArgsWithDummies(dof.args)
+        let dof.Mock     = 'Mock_'.   dof.name
+        let dof.Expect   = 'Expect_'. dof.name
+        let dof.Stubbed  = dof.name .'_Stubbed'
+        return dof
+    endfunction
+    let dof = s:CreateDof()
+    if dof.lib == ''
+        echomsg s:sad_kitty 'Cannot determine name of depended-on-lib.'
+        echomsg s:default_kitty 'Nothing was done 2.'
+        return
+    endif
+    "TODO: write unit test
+        "echomsg s:happy_kitty  'DOF sig: `'. dof.sig      .'`'
+        "echomsg s:invisible_kitty 'name: `'. dof.name     .'`'
+        "    \                  .', args: `'. dof.args     .'`'
+        "    \              .', argtypes: `'. dof.argtypes .'`'
+        "    \              .', mockargs: `'. dof.mockargs .'`'
+        "    \              .',  numargs: `'. dof.numargs  .'`'
+        "return
+        "echomsg s:happy_kitty     '  Mocked: `'. dof.Mock    .'`'
+        "echomsg s:invisible_kitty 'Expected: `'. dof.Expect  .'`'
+        "    \                   .', Stubbed: `'. dof.Stubbed .'`'
+        "return
+        "echomsg s:happy_kitty     '    Mocked: `'. dof.Mock     .'`'
+        "echomsg s:invisible_kitty 'dummy args: `'. dof.dumbargs .'`'
+        "return
+    let args_are_undeclared = matchstr(dof.argtypes, 'undeclared') != ''
+    if  args_are_undeclared
+        let args = expectmocking#RemoveWhitespace(
+          \expectmocking#RemoveParentheses(dof.args)
+          \)
+        let args_list = split(args,',')
+        let argtypes = expectmocking#RemoveWhitespace(
+                      \expectmocking#RemoveParentheses(dof.argtypes))
+        let argtypes_list = split(argtypes,',')
+        let undeclared_arg = args_list[index(argtypes_list, 'undeclared')]
+        echomsg s:sad_kitty '`'.undeclared_arg.'` is not declared.'
+        echomsg s:default_kitty 'Nothing was done 4.'
+        return
+    endif
+    "TODO: write unit test
+        "echomsg s:happy_kitty 'All args in `'. dof.sig .'` are declared.' | return
+    function! s:CreateDol(dof)
+        "Return a dict for the depended on library (DOL) based on the DOF.
+        let dol = {}
+        let dol.src = {}
+        let dol.src.files = {}
+        let dol.src.files.c = 'src/' . a:dof.lib . '.c'
+        let dol.src.files.h = 'src/' . a:dof.lib . '.h'
+        let dol.mock = {}
+        let dol.mock.files = {}
+        let dol.mock.files.c = 'test/mock_' . a:dof.lib . '.c'
+        let dol.mock.files.h = 'test/mock_' . a:dof.lib . '.h'
+        let dol.code = {}
+        let dol.code.fp_implem = expectmocking#FnPtrImplem(a:dof)
+        let dol.code.fp_assign = expectmocking#FnPtrAssign(a:dof)
+        let dol.code.defMockExpectStubbed = [
+        \'static RecordedCall * '. a:dof.Mock . a:dof.mockargs,
+        \'{',
+        \'    char const *call_name = "'. a:dof.name .'";',
+        \'    RecordedCall *record_of_this_call = RecordedCall_new(call_name);'
+        \]
+        let argnum = 0
+        while argnum != a:dof.numargs
+            let argnum = argnum+1
+            let list_index = argnum-1
+            let list_of_dumbargs = expectmocking#ArgStringToList(a:dof.dumbargs)
+            let dumb_arg_name = get(list_of_dumbargs, list_index)
+            let record_of_arg = 'record_of_'. dumb_arg_name
+            let list_of_argtypes = expectmocking#ArgStringToList(a:dof.argtypes)
+            let arg_type      = get(list_of_argtypes, list_index)
+            let SetupRecord_type = expectmocking#MakeSetupRecordType(arg_type)
+            "\'    RecordedArg *'. record_of_arg .' = RecordedArg_new(SetupRecord_'. arg_type .');',
+            let dol.code.defMockExpectStubbed += [
+            \'    RecordedArg *'. record_of_arg .' = RecordedArg_new('.SetupRecord_type.');',
+            \'    *(('. arg_type .'*)'. record_of_arg .'->pArg) = '. dumb_arg_name .';',
+            \'    RecordArg(record_of_this_call, '. record_of_arg .');'
+            \]
+        endwhile
+        let dol.code.defMockExpectStubbed += [
+        \'    return record_of_this_call;',
+        \'}',
+        \'void '. a:dof.Expect . a:dof.mockargs .' {',
+        \'    RecordExpectedCall(mock, '. a:dof.Mock . a:dof.dumbargs .');',
+        \'}',
+        \'void '. a:dof.Stubbed . a:dof.mockargs .' {',
+        \'    RecordActualCall(mock, '. a:dof.Mock . a:dof.dumbargs .');',
+        \'}'
+        \]
+        return dol
+    endfunction
+    let dol = s:CreateDol(dof)
+    for this_file in keys(dol.src.files)
+        if !file#Exists(dol.src.files[this_file])
+            echomsg s:sad_kitty '`' . dol.src.files[this_file] . '` does not exist.'
+            echomsg s:default_kitty 'Nothing was done 3.1'
+            return
+        endif
+    endfor
+    "TODO: write unit test
+        "echomsg s:happy_kitty '`'. dof.lib .'` source files exist.' | return
+        "echomsg s:happy_kitty string(dol.code.fp_implem)
+        "echomsg s:happy_kitty string(dol.code.fp_assign)
+        "return
+    function! s:CreateLut(fut, dof)
+        "Return a dict for the library under test (LUT) based on the FUT:
+        "- fixture MockUp code to add
+        "- MockUp file names to hold MockUp code for the FUT.
+        "Also based on the DOF to write code to wire the stubs.
+        let lut = {}
+        let lut.code = {}
+        let lut.code.callSetUpMock = [
+        \'    ' . a:fut.SetUpMock .    '();    // create the mock object to record calls',
+        \'    // other setup code'
+        \]
+        let lut.code.callTearDownMock = [
+        \'    ' . a:fut.TearDownMock . '();    // destroy the mock object',
+        \'    // other teardown code'
+        \]
+        let lut.code.defSetUpMock = [
+        \'void SetUpMock_'. a:fut.name .'(void)  // FUT',
+        \'{',
+        \'    mock = Mock_new();',
+        \'    //',
+        \'}'
+        \]
+        let lut.code.defTearDownMock = [
+        \'void TearDownMock_'. a:fut.name .'(void)  // FUT',
+        \'{',
+        \'    Mock_destroy(mock); mock = NULL;',
+        \'    //',
+        \'}'
+        \]
+        let lut.code.wireStubs = [
+        \'static void (*'. a:dof.name .'_Saved)'. a:dof.argtypes .';',
+        \'static void Stub_'. a:dof.name .'(void) {',
+        \'    '. a:dof.name .'_Saved = '. a:dof.name .';',
+        \'    '. a:dof.name .' = '. a:dof.name .'_Stubbed;',
+        \'}',
+        \'static void Unstub_'. a:dof.name .'(void) {',
+        \'    '. a:dof.name .' = '. a:dof.name .'_Saved;',
+        \'}'
+        \]
+        let lut.code.callStub = [
+        \'    Stub_'. a:dof.name .'();  // DOF'
+        \]
+        let lut.code.callUnstub = [
+        \'    Unstub_'. a:dof.name .'();  // DOF'
+        \]
+        let lut.MockUp = {}
+        let lut.MockUp.files = {}
+        let lut.MockUp.files.c = 'test/test_' . a:fut.lib . '_MockUps.c'
+        let lut.MockUp.files.h = 'test/test_' . a:fut.lib . '_MockUps.h'
+        return lut
+    endfunction
+    let lut = s:CreateLut(fut, dof)
+    "TODO: write unit test
+        "echomsg s:happy_kitty string(lut.code.callSetUpMock)
+        "echomsg s:happy_kitty string(lut.code.callTearDownMock)
+        "echomsg s:happy_kitty string(lut.code.defSetUpMock)
+        "echomsg s:happy_kitty string(lut.code.defTearDownMock)
+        "echomsg s:happy_kitty string(lut.code.wireStubs)
+        "echomsg s:happy_kitty 'MockUp files: `'. lut.MockUp.files.c .'` and `'.
+        "                      \lut.MockUp.files.h . '`'
+        "echomsg s:happy_kitty string(lut.code.callStub)
+        "echomsg s:happy_kitty string(lut.code.callUnstub)
+        "return
+    for this_file in keys(lut.MockUp.files)
+        if !file#Exists(lut.MockUp.files[this_file])
+            echomsg s:sad_kitty '`' . lut.MockUp.files[this_file] . '` does not exist.'
+            echomsg s:default_kitty 'Nothing was done 3.0.'
+            return
+        endif
+    endfor
+    "TODO: write unit test
+        "echomsg s:happy_kitty 'MockUp files exist for `'. fut.lib .'`.' | return
+    "Check if a DOF Implementation is already defined in DofLibC
+    let func_impl = dof.name . '_Implementation'
+    if expectmocking#IsDefined(func_impl)
+        echomsg s:default_kitty '`'.func_impl.'` is already defined in project `'.expand("%:p:h:h").'`.'
+        echomsg s:default_kitty 'Nothing was done 5.'
+        return
+    endif
+    "Check if DOF is already defined.
+    if expectmocking#IsDefined(dof.name)
+        echomsg s:default_kitty '`'. dof.name .'` is already defined in project `'.expand("%:p:h:h").'`.'
+        echomsg s:default_kitty 'Nothing was done 6.'
+        return
+    endif
+    "TODO: write unit test
+        "echomsg s:happy_kitty 'No definition of `' . dof.name . '` or `'.
+        "    \                  func_impl .'` yet in project'
+        "echomsg s:invisible_kitty expand("%:p:h:h")
+        "return
+    "=====[ add code ]=====
+    " file: testfile -- call SetUpMock_FUT in SetUp_FUT
+    call expectmocking#CallFixtureMock(
+        \fut.SetUp,
+        \fut.SetUpMock,
+        \lut.code.callSetUpMock
+        \)
+    "file: testfile -- call TearDownMock_FUT in TearDown_FUT
+    call expectmocking#CallFixtureMock(
+        \fut.TearDown,
+        \fut.TearDownMock,
+        \lut.code.callTearDownMock
+        \)
+    "TODO: write unit test
+        "echomsg s:happy_kitty     '`' . fut.SetUp . '`    calls `' . fut.SetUpMock . '` and'
+        "echomsg s:invisible_kitty '`' . fut.TearDown . '` calls `' . fut.TearDownMock . '`.'
+        "return
+    " file: test_LUT_Mockups -- define SetUpMock_FUT
+    if !expectmocking#IsDefined(fut.SetUpMock)
+        if !expectmocking#AddCodeToExistingFile(
+            \lut.MockUp.files.c,
+            \lut.code.defSetUpMock,
+            \'$'
+            \)
+            echomsg s:sad_kitty 'Failed to define SetUpMock in `'. lut.MockUp.files.c .'`.'
+            echomsg s:default_kitty 'Nothing was done 7.'
+            return
+        endif
+        "Find func def for function just added.
+        let this_file = expand("%")
+        silent! execute 'tag ' . fut.SetUpMock
+        call search('\M'.lut.code.defSetUpMock[0], 'w')
+        "Add prototype to header.
+        call expectmocking#AddFuncDeclToHeader(l:add_silently)
+        call expectmocking#AddIncludeLibHdr('Mock')
+        call expectmocking#AddIncludeProjHdr(dol.mock.files.h)
+        call expectmocking#AddIncludeProjHdr(dol.src.files.h)
+        silent execute "noswapfile edit" this_file
+        "TODO: write unit test
+            "echomsg s:happy_kitty 'Defined `' . fut.SetUpMock . '` '
+            "    \.            'in file `'. lut.MockUp.files.c .'`.'
+            "return
+    "else
+        "TODO: write unit test
+            "echomsg s:happy_kitty '`' . fut.SetUpMock . '` already defined '
+            "    \.'in file `'. lut.MockUp.files.c .'`.'
+            "echomsg s:default_kitty 'Nothing was done 7.'
+            "return
+    endif
+    if !expectmocking#IsDefined(fut.TearDownMock)
+        if !expectmocking#AddCodeToExistingFile(
+            \lut.MockUp.files.c,
+            \lut.code.defTearDownMock,
+            \'$'
+            \)
+            echomsg s:sad_kitty 'Failed to define TearDownMock in `'. lut.MockUp.files.c .'`.'
+            echomsg s:default_kitty 'Nothing was done 7.'
+            return
+        endif
+        "Find func def for function just added.
+        let this_file = expand("%")
+        silent! execute 'tag ' . fut.TearDownMock
+        call search('\M'.lut.code.defTearDownMock[0], 'w')
+        "Delete blank line.
+        execute 'normal! kdd'
+        silent write
+        "Add prototype to header.
+        call expectmocking#AddFuncDeclToHeader(l:add_silently)
+        call expectmocking#AddIncludeLibHdr('Mock')
+        call expectmocking#AddIncludeProjHdr(dol.mock.files.h)
+        call expectmocking#AddIncludeProjHdr(dol.src.files.h)
+        silent execute "noswapfile edit" this_file
+        "TODO: write unit test
+            "echomsg s:happy_kitty 'Defined `' . fut.TearDownMock . '` '
+            "    \.            'in file `'. lut.MockUp.files.c .'`.'
+            "return
+    "else
+        "TODO: write unit test
+            "echomsg s:happy_kitty '`' . fut.TearDownMock . '` already defined '
+            "    \.'in file `'. lut.MockUp.files.c .'`.'
+            "echomsg s:default_kitty 'Nothing was done 7.'
+            "return
+    endif
+    call expectmocking#AddIncludeProjHdr(lut.MockUp.files.h) " include in test file
+    "file: test_LUT_MockUps -- wire DOF stubs right before (-1) the SetUpMock_FUT.
+    if !expectmocking#IsDefined('Stub_'. dof.name)
+        "TODO: write unit test
+            "echomsg '`Stub_'. dof.name .'` is not defined yet.'
+        if !expectmocking#AddCodeToExistingFile(
+            \lut.MockUp.files.c,
+            \lut.code.wireStubs,
+            \expectmocking#LineNumOfFuncDef(fut.SetUpMock, lut.MockUp.files.c)-1
+            \)
+            echomsg s:default_kitty 'Nothing was done 7.'
+            return
+        endif
+    "else
+    "    echomsg '`Stub_'. dof.name .'` is defined.'
+    endif
+    "TODO: write unit test
+        "echomsg s:happy_kitty 'Wired stubs for `'. dof.name .'` in `'. lut.MockUp.files.c .'`.'
+        "return
+    " file: test_LUT_Mockups -- insert calls to Stub_FUT and Unstub_FUT at end
+    " of fut.SetUpMock and fut.TearDownMock
+    silent execute "noswapfile edit " . lut.MockUp.files.c
+    let stubber = 'Stub_'. dof.name
+    let fixture = fut.SetUpMock
+    let code    = lut.code.callStub
+    let linenum_above_last_line_of_fixture = expectmocking#LastLineNumOfFuncDef(
+        \fixture, lut.MockUp.files.c)-1
+    if expectmocking#ThisFileHasDefinition(fixture)
+        if !expectmocking#StringIsInFuncBlock(stubber, fixture)
+            call append(linenum_above_last_line_of_fixture, code)
+            silent write
+            silent call ctags#Update()
+        endif
+    endif
+    let stubber = 'Unstub_'. dof.name
+    let fixture = fut.TearDownMock
+    let code    = lut.code.callUnstub
+    let linenum_above_last_line_of_fixture = expectmocking#LastLineNumOfFuncDef(
+        \fixture, lut.MockUp.files.c)-1
+    if expectmocking#ThisFileHasDefinition(fixture)
+        if !expectmocking#StringIsInFuncBlock(stubber, fixture)
+            call append(linenum_above_last_line_of_fixture, code)
+            silent write
+            silent call ctags#Update()
+        endif
+    endif
+    silent execute "noswapfile edit" testfile
+   "TODO: write unit test
+        "if not defined before:
+            "echomsg s:happy_kitty 'Called stub for `'. dof.name .'` in `'. lut.MockUp.files.c .'` `'. fut.SetUpMock .'`.'
+            "echomsg s:happy_kitty 'Called unstub for `'. dof.name .'` in `'. lut.MockUp.files.c .'` `'. fut.TearDownMock .'`.'
+        "if already defined before:
+            "echomsg s:happy_kitty '`'. dof.name .'` already stubbed in `'. lut.MockUp.files.c .'` `'. fut.SetUpMock .'`.'
+            "echomsg s:happy_kitty '`'. dof.name .'` already unstubbed in `'. lut.MockUp.files.c .'` `'. fut.TearDownMock .'`.'
+
+    "---Left off here
+    "I am so close!
+    "This next bit already checks if the Mock_DOF defintion exists.
+    "The hard part is generating the code for this one. Arg numbers.
+    "[ ] if the Mock_DOF definition already exists then do nothing to this file or to
+    "    its .h
+    "[ ] Include these headers only if they are not already included
+    let this_file = expand("%")
+    silent! execute 'tag ' . dof.Mock
+    let mock_dof_defined = this_file != expand("%")
+    if  mock_dof_defined
+        silent execute "noswapfile edit" this_file
+        echomsg s:default_kitty '`'. dof.Mock .'` is already defined in `'. dol.mock.files.c .'`.'
+        return
+    endif
+    "file: dol.mock.files.c
+    call expectmocking#AddCodeToExistingFile(
+        \dol.mock.files.c,
+        \dol.code.defMockExpectStubbed,
+        \'$'
+        \)
+    "Add Headers
+        "Adding headers handles writing the file.
+        "A header is not added to the file if it is already included.
+    "file: testfile
+    call expectmocking#AddIncludeLibHdr('Mock')
+    call expectmocking#AddIncludeProjHdr(dol.mock.files.h)
+    call expectmocking#AddIncludeProjHdr(dol.src.files.h)
+    "file: dol.mock.files.c
+    silent execute "noswapfile edit" dol.mock.files.c
+    call expectmocking#AddIncludeLibHdr('RecordedArg')
+    call expectmocking#AddIncludeLibHdr('RecordedCall')
+    call expectmocking#AddIncludeLibHdr('Mock')
+    call expectmocking#AddIncludeProjHdr(dol.mock.files.h)
+    "Add declarations to header.
+    "file: dol.mock.files.h
+    silent call ctags#Update() " update the tags file before using it
+    execute 'tag ' . dof.Expect
+    call expectmocking#AddFuncDeclToHeader(l:add_silently)
+    execute 'tag ' . dof.Stubbed
+    call expectmocking#AddFuncDeclToHeader(l:add_silently)
+    silent execute "noswapfile edit" this_file
+    echomsg s:happy_kitty     'Mocked `' . dof.name . '`'
+    echomsg s:invisible_kitty 'Defined `'. dof.Mock .'` in `'. dol.mock.files.c .'`.'
+    echomsg s:invisible_kitty '`'. dof.Expect .'` and `'. dof.Stubbed .
+        \'` are available from `'. dol.mock.files.h .'` for tests.'
+
+    "Made it this far? The expected call has never been defined.
+    "But dol.src.files.c and dol.src.files.h exist.
+    "
+    "Add function pointer.
+    "file: dol.src.files.c
+    call expectmocking#AddCodeToExistingFile(
+        \dol.src.files.c,
+        \dol.code.fp_implem,
+        \'$'
+        \)
+    call expectmocking#AddCodeToExistingFile(
+        \dol.src.files.c,
+        \dol.code.fp_assign,
+        \'$'
+        \)
+    "Add function pointer declaration.
+    "file: dol.src.files.h
+    silent execute "noswapfile edit " . dol.src.files.c
+    call search('\M'.dol.code.fp_assign[0], 'w')
+    call expectmocking#AddExternDeclToHeader(l:add_silently)
+    silent execute "noswapfile edit " . testfile
+    "echomsg s:invisible_kitty 'Added function pointer to `' . dol.src.files.c . '`'
+    "echomsg s:invisible_kitty '                      and `' . dol.src.files.h . '`'
+    echomsg s:invisible_kitty 'Added function pointer to `' . dol.src.files.c .
+                \'` available from `'. dol.src.files.h . '`'
+    echomsg s:invisible_kitty 'Stub and Unstub are defined in `'
+                \. lut.MockUp.files.c . '`'
+    echomsg s:trippy_kitty 'If return is not void, edit the declaration of '
+        \. '`' . dof.name . '_Saved` in `' . lut.MockUp.files.c . '`. '
+        \. 'In `' . dof.name . '_Stubbed` in `' . dol.mock.files.c .'`, '
+        \. 'edit the return value and add a line to the definition that '
+        \. 'returns a global variable. '
+        \. 'Give this a default assignment in `' . dol.mock.files.c .'`, '
+        \. 'and declare it `extern` in `' . dol.mock.files.h .'`.'
+    redraw
+    execute "messages"
+    return
+
+    
+    ""Insert code in depended on lib C file.
+    "silent execute "noswapfile edit " . dol.src.files.c
+    "" Add a blank line if last line is not blank
+    ""if !expectmocking#LastLineIsBlank() | call expectmocking#AppendBlankLine() | endif
+    "call append('$', dol.code.fp_implem)
+    "call append('$', dol.code.fp_assign)
+    "silent write
+    "call search('\M'.dol.code.fp_assign[0], 'w')
+    "call expectmocking#AddExternDeclToHeader()
+    "silent execute "noswapfile edit " . testfile
+    "echomsg s:happy_kitty     'Mocked `' . dof.name . '`'
+    "echomsg s:invisible_kitty 'Added function pointer to `' . dol.src.files.c . '`'
+    "echomsg s:invisible_kitty '                      and `' . dol.src.files.h . '`'
+endfunction
+function! OldMockExpectedCall()
+    if !file#ThisIsC()                     || file#UnsavedChanges()
+     \ || !expectmocking#ThisIsATestFile() || !expectmocking#ThisLineExpectsACall()
+        echomsg s:default_kitty 'Nothing was done 1.0.'
+        return
+    endif
+    echomsg s:happy_kitty ';ym = yummy mocks! Updating tags first...'
+    " update the tags file before using it
+    silent call ctags#Update()
+    let testfile = expand("%:p")
+    "echomsg s:happy_kitty 'Test file: `' . testfile . '`' | return
+
+    "if !AllFilesNeededForMockingExist() | return | endif
+    "if !AllDefsNeededForMockingExist() | return | endif
+    "=====[ Make sure everything is in place before adding code ]=====
+    " Get the FUT lib, DOF lib, and function signature.
+    let fut = {}
+    let fut.lib = expectmocking#NameOfLut()
+    "echomsg 'Lib under test: `' . fut.lib . '`' | return
+    "Get name of function under test.
+    let fut.name = expectmocking#NameOfFut()
+    if fut.name == ''
+        echomsg s:sad_kitty 'Cannot determine name of function under test.'
+        echomsg s:default_kitty 'Nothing was done 1.1.'
+        return
+    endif
+    "echomsg s:happy_kitty 'Found name of function under test.'
+    "return
+    let fut.SetUp        = 'SetUp_'        . fut.name
+    let fut.TearDown     = 'TearDown_'     . fut.name
+    let fut.SetUpMock    = 'SetUpMock_'    . fut.name
+    let fut.TearDownMock = 'TearDownMock_' . fut.name
+    "echomsg s:happy_kitty     'Function under test: `' . fut.name . '` in lib `' . fut.lib . '`'
+    "echomsg s:invisible_kitty fut.SetUp fut.TearDown fut.SetUpMock fut.TearDownMock
+    "return
+
+    "Give up if SetUp and TearDown are not defined yet.
+    if !expectmocking#IsDefined(fut.SetUp)
+        echomsg s:sad_kitty '`' . fut.SetUp . '` is not defined.'
+        echomsg s:default_kitty 'Nothing was done 1.2.'
+        return
+    endif
+    if !expectmocking#IsDefined(fut.TearDown)
+        echomsg s:sad_kitty '`' . fut.TearDown . '` is not defined.'
+        echomsg s:default_kitty 'Nothing was done 1.2.'
+        return
+    endif
+    "echomsg s:happy_kitty '`' . fut.SetUp . '` and `' . fut.TearDown . '` are defined.'
+
+    "Prepare to add calls to SetUpMock_FUT and TearDownMock_FUT if not made already.
+    let lutSrc = {}
+    let lutSrc.callSetUpMock = [
+    \'    ' . fut.SetUpMock . '();    // create the mock object to record calls',
+    \'    // other setup code'
+    \]
+    let lutSrc.callTearDownMock = [
+    \'    ' . fut.TearDownMock . '();    // destroy the mock object',
+    \'    // other teardown code'
+    \]
+
+    let dof = {}
+    let dof.sig = expectmocking#ExpectedCallSig(getline('.'))
+    "let function_signature = expectmocking#ExpectedCallSig(getline('.'))
+    "echomsg s:happy_kitty 'dof.sig:' dof.sig
+    "return
+    "let dolName = expectmocking#NameOfDol()
+    let dof.lib = expectmocking#NameOfDol()
+    "echomsg dof.lib | return
+    if dof.lib == ''
+        echomsg s:default_kitty 'Nothing was done 2.'
+        return
+    "else
+    "    echomsg s:happy_kitty . dof.lib
+    endif
+    let lutMockUps = {}
+    let lutMockUps.files = {}
+    let lutMockUps.files.c = 'test/test_' . fut.lib . '_MockUps.c'
+    let lutMockUps.files.h = 'test/test_' . fut.lib . '_MockUps.h'
+    "echomsg s:happy_kitty '`'. lutMockUps.files.c .'` and `'. lutMockUps.files.h . '`'
+    "return
+    for this_file in keys(lutMockUps.files)
+        if !file#Exists(lutMockUps.files[this_file])
+            echomsg s:sad_kitty '`' . lutMockUps.files[this_file] . '` does not exist.'
+            echomsg s:default_kitty 'Nothing was done 3.0.'
+            return
+        endif
+    endfor
+    "echomsg s:happy_kitty 'LUT MockUps test files exist.'
+    "return
+
+    "TODO: change this to a dict
+    let dolSrc = {}
+    let dolSrc.files = {}
+    let dolSrc.files.c = 'src/' . dof.lib . '.c'
+    let dolSrc.files.h = 'src/' . dof.lib . '.h'
+    for this_file in keys(dolSrc.files)
+        "echomsg s:happy_kitty file . ': ' . dolSrc.files[this_file]
+        if !file#Exists(dolSrc.files[this_file])
+            echomsg s:sad_kitty '`' . dolSrc.files[this_file] . '` does not exist.'
+            echomsg s:default_kitty 'Nothing was done 3.1'
+            return
+        endif
+    endfor
+    "echomsg s:happy_kitty 'DOL source files exist.'
+    "return
+    "echomsg 'define and assign function pointer for DOF lib'
+    let dof.name     = expectmocking#FuncName(dof.sig)
+    let dof.args     = expectmocking#FuncArgs(dof.sig)
+    let dof.argtypes = expectmocking#ReplaceArgsWithTypes(dof.sig)
+    "echomsg s:happy_kitty 'dof.name:' dof.name
+    "echomsg s:happy_kitty 'dof.args:' dof.args
+    "echomsg s:happy_kitty 'dof.argtypes:' dof.argtypes
+    "return
+    let args_are_undeclared = matchstr(dof.argtypes, 'undeclared') != ''
+    if  args_are_undeclared
+        let args = expectmocking#RemoveWhitespace(
+                  \expectmocking#RemoveParentheses(dof.args)
+                  \)
+        let args_list = split(args,',')
+        let argtypes = expectmocking#RemoveWhitespace(
+                      \expectmocking#RemoveParentheses(dof.argtypes))
+        let argtypes_list = split(argtypes,',')
+        let undeclared_arg = args_list[index(argtypes_list, 'undeclared')]
+        echomsg s:sad_kitty '`'.undeclared_arg.'` is not declared.'
+        echomsg s:default_kitty 'Nothing was done 4.'
+        return
+    endif
+    "echomsg s:happy_kitty 'All args are declared.'
+    "return
+    let dolSrc.fp_implem = expectmocking#FnPtrImplem(dof)
+    let dolSrc.fp_assign = expectmocking#FnPtrAssign(dof)
+    "echomsg s:happy_kitty string(dolSrc.fp_implem)
+    "echomsg s:happy_kitty string(dolSrc.fp_assign)
+    "return
+    "Check if a DOF Implementation is already defined in DofLibC
+    if expectmocking#IsDefined(dof.name . '_Implementation')
+        echomsg s:default_kitty 'Nothing was done 5.'
+        return
+    endif
+    "echomsg s:happy_kitty 'No definition of ' . dof.name . '_Implementation yet in project'
+    "echomsg s:invisible_kitty expand("%:p:h:h")
+    "return
+    "Check if DOF is already defined.
+    if expectmocking#IsDefined(dof.name)
+        echomsg s:default_kitty 'Nothing was done 6.'
+        return
+    endif
+
+    "=====[ add code ]=====
+    "file: testfile
+    call !expectmocking#CallFixtureMock(
+        \fut.TearDown,
+        \fut.TearDownMock,
+        \lutSrc.callTearDownMock
+        \)
+    call !expectmocking#CallFixtureMock(
+        \fut.SetUp,
+        \fut.SetUpMock,
+        \lutSrc.callSetUpMock
+        \)
+    "echomsg s:happy_kitty     '`' . fut.SetUp . '`    calls `' . fut.SetUpMock . '` and'
+    "echomsg s:invisible_kitty '`' . fut.TearDown . '` calls `' . fut.TearDownMock . '`.'
+    "return
+
+    "---Left off here
+    "If SetUpMock_Fut and TearDownMock_FUT are not defined, go define them in
+    "test_LUT_MockUps.c and .h. Put the #include test_LUT_MockUps.h in the
+    "test_LUT.c file.
+
+    "Made it this far? The expected call has never been defined.
+    "But dolSrc.files.c and dolSrc.files.h exist.
+        "Place these in dolSrc.files.c:
+        "   dolSrc.fp_implem
+        "   dolSrc.fp_assign
+        "Place fp extern declaration in dolSrc.files.h using AddExternDeclToHeader().
+    "
+    "file: dolSrc.files[c]
+    "Open file from existing buffer or existing file.
+    if bufexists(dolSrc.files.c)
+        let header_bufnr = file#FindBufnum(dolSrc.files.c)
+        "echomsg s:happy_kitty "buffer number:" header_bufnr
+        "return
+        silent execute "noswapfile buffer "header_bufnr
+    else
+        silent execute "noswapfile edit" dolSrc.files.c
+    endif
+    "echomsg s:happy_kitty 'Editing file:' dolSrc.files.c
+    "return
+    
+    "---Left off here.
+
+    "---This is old stuff I am rewriting with the dict version.
+    "Insert code in depended on lib C file.
+    silent execute "noswapfile edit " . dolSrc.files.c
+    " Add a blank line if last line is not blank
+    if !expectmocking#LastLineIsBlank() | call expectmocking#AppendBlankLine() | endif
+    call append('$', dolSrc.fp_implem)
+    call append('$', dolSrc.fp_assign)
+    silent write
+    call search('\M'.dolSrc.fp_assign[0], 'w')
+    call expectmocking#AddExternDeclToHeader()
+    silent execute "noswapfile edit " . testfile
+    echomsg s:happy_kitty     'Mocked `' . dof.name . '`'
+    echomsg s:invisible_kitty 'Added function pointer to `' . dolSrc.files.c . '`'
+    echomsg s:invisible_kitty '                      and `' . dolSrc.files.h . '`'
+endfunction
+function! OldYankIntoMock()
+    "This replaces `AddStubToMockAndTest`.
+    "TODO: refactor using Dicts as objects.
+    "e.g., dict FUT has keys: func_name and lib.
+    "Determine FUT.func_name by finding 'RanAsHoped' and looking at the line
+    "above.
+    "echomsg "ym >^.^< yummy mocks..."
+    if !file#ThisIsC()                     || file#UnsavedChanges()
+     \ || !expectmocking#ThisIsATestFile() || !expectmocking#ThisLineExpectsACall()
+        echomsg s:default_kitty 'Nothing was done.'
+        return
+    endif
+    echomsg 'ym ' s:happy_kitty ' yummy mocks...Updating tags first...'
+    " update the tags file before using it
+    silent call ctags#Update()
+    " Get the FUT lib, DOF lib, and function signature.
+    let function_signature = expectmocking#ExpectedCallSig(getline('.'))
+    "let FUT_lib = expectmocking#NameOfLut()
+    let lutName = expectmocking#NameOfLut()
+    "let DOF_lib = expectmocking#NameOfDol()
+    let dolName = expectmocking#NameOfDol()
+    "if DOF_lib == ''
+    if dolName == ''
+        echomsg s:default_kitty 'Nothing was done.'
+        return
+    "else
+    "    echomsg s:happy_kitty . dolName
+    endif
+    "TODO: change this to a dict
+    let dolSrcList = ['src/'.dolName.'.c', 'src/'.dolName.'.h']
+    "let DOF_lib = ['src/'.DOF_lib.'.c', 'src/'.DOF_lib.'.h']
+    for file in dolSrcList
+        if !file#Exists(file)
+            echomsg s:sad_kitty '`'.file.'` does not exist.'
+            echomsg s:default_kitty 'Nothing was done.'
+        return | endif
+    endfor
+    "echomsg s:happy_kitty 'All DOL source files exist.'
+    "echomsg 'define and assign function pointer for DOF lib'
+    let list_fname_ftypes = expectmocking#FuncNameAndTypes(function_signature)
+    "let funcNameAndTypes = expectmocking#FuncNameAndTypes(function_signature)
+    "let undeclared_args = matchstr(funcNameAndTypes[1], 'undeclared') != ''
+    let arg_types = list_fname_ftypes[1]
+    let args_are_undeclared = matchstr(arg_types, 'undeclared') != ''
+    if  args_are_undeclared
+        let arg_type_list = split(substitute(arg_types[1:-2],                             ' ', '', 'g'), ',')
+        let arg_list      = split(substitute(matchstr(function_signature,'(.*)')[1:-2], ' ', '', 'g'), ',')
+        let undeclared_arg = arg_list[index(arg_type_list, 'undeclared')]
+        echomsg s:sad_kitty '`'.undeclared_arg.'` is not declared.'
+        echomsg s:default_kitty 'Nothing was done.'
+        return
+    endif
+    "echomsg s:happy_kitty 'All args are declared.'
+    let fptr_implementation   = expectmocking#CodeFuncPtrImpl(list_fname_ftypes)
+    let fptr_assignment = expectmocking#CodeFuncPtrAssignment(list_fname_ftypes)
+    "let dofImplementation    = expectmocking#CodeFuncPtrImpl(funcNameAndTypes)
+    "let dofFuncPtrAssignment = expectmocking#CodeFuncPtrAssignment(funcNameAndTypes)
+    let dolSrc_lines = [fptr_implementation, fptr_assignment]
+    "let linesForDofLibC = [dofImplementation, dofFuncPtrAssignment]
+    "echomsg s:happy_kitty 'Depended on lib source code:'
+    "for code in dolSrc_lines
+    "    for line_of_code in code
+    "        echomsg line_of_code
+    "    endfor
+    "endfor
+    "Check if a DOF Implementation is already defined in DofLibC
+    let fname      = list_fname_ftypes[0]
+    let fname_impl = fname.'_Implementation'
+    if expectmocking#IsDefined(fname_impl)
+        echomsg s:default_kitty 'Nothing was done.'
+        return
+    endif
+    "echomsg s:happy_kitty '`'.fname_impl.'` is not defined in project `'.expand("%:p:h:h").'`.'
+    "Check if DOF is already defined.
+    if expectmocking#IsDefined(fname)
+        echomsg s:default_kitty 'Nothing was done.'
+        return
+    endif
+    "echomsg s:happy_kitty '`'.fname.'` is not defined in project `'.expand("%:p:h:h").'`.'
+    "Made it this far? The call to mock has never been defined.
+
+    "Insert code in depended on lib C file.
+    let dolSrcFile_C = dolSrcList[0]
+    let dolSrcFile_H = dolSrcList[1]
+    silent execute "noswapfile edit " . dolSrcFile_C
+    " Add a blank line if last line is not blank
+    if getline('$') != ''
+        call append('$',[''])
+        write
+    endif
+    for code in dolSrc_lines
+        for line_of_code in code
+            call append('$',line_of_code)
+        endfor
+    endfor
+    write
+    silent execute "noswapfile buffer #"
+
+    "Left off here:
+    "Insert extern function pointer declaration in depended on lib H file.
+    "extern void (*DOF2)(uint8_t);
+
+    silent call ctags#Update()
+endfunction
+function! CreateFunctionPointer(func_sig) "not used
+    "Only handles function that return void.
+    "func_sig does not contain the return type.
+    "old:
+        "let func_name = matchstr(a:func_sig,'.*(')[:-2]
+        "let func_types = expectmocking#ReplaceArgsWithTypes(a:func_sig)
+
+        "let func_name_Impl = func_name.'_Implementation'
+        "let func_implementation = ['static void '.func_name_Impl.func_types]
+        "let func_implementation += ['{}']
+        "for line in func_implementation
+        "    echo line
+        "endfor
+
+        "let fp_assignment = 'void (*'.func_name.')'.func_types.
+        "            \' = '.func_name_Impl.';'
+        "echo fp_assignment
+    "This function should return the fp
+    "Place func_implementation and fp_assignment in DOF lib .c
+endfunction
+nnoremap <leader>ys :call AddStubToMockAndTest()<CR>
+function! FileTypeIsC()
+    "Confirm this is a C file."
+    if &filetype == 'c'
+        "echomsg ">^.^< This is a 'c' file."
+    else
+        echomsg ">-.-<   This is not a 'c' file."
+    endif
+    return &filetype == 'c'
+endfunction
+function! FileIsALibTest()
+    "Confirm this is a lib test file."
+    let c_filedir  = expand("%:h")
+    let is_in_the_right_folder = c_filedir == "lib/test"
+    let c_filename = expand("%:t")
+    let test_prefix = matchstr(c_filename,'test_')
+    let is_a_test_file = test_prefix == 'test_'
+    if is_in_the_right_folder
+        "echomsg ">^.^< This is the right folder."
+        if is_a_test_file
+            "echomsg ">^.^< This is a test file."
+        else
+            echomsg ">-.-< This is not a test file."
+        endif
+    else
+        echomsg ">-.-< This is not the right folder."
+    endif
+    return is_in_the_right_folder && is_a_test_file
+endfunction
+function! ThisIsAMockFile()
+    "Confirm this is a mock file."
+    "Similar to expectmocking#ThisIsATestFile()."
+    let c_filedir  = expand("%:h")
+    let is_in_the_right_folder = c_filedir == "test"
+    let c_filename = expand("%:t")
+    let mock_prefix = matchstr(c_filename,'mock_')
+    let is_a_mock_file = mock_prefix == 'mock_'
+    if is_in_the_right_folder
+        "echomsg ">^.^< This is the right folder."
+        if is_a_mock_file
+            "echomsg ">^.^< This is a mock file."
+        else
+            echomsg ">-.-< This is not a mock file."
+        endif
+    else
+        echomsg ">-.-< This is not the right folder."
+    endif
+    return is_in_the_right_folder && is_a_mock_file
+endfunction
+function! ThisLineHasAnExpectCall()
+    let mExpectCall = matchstr(getline('.'),'ExpectCall')
+    let this_line_has_an_ExpectCall = mExpectCall == 'ExpectCall'
+    if this_line_has_an_ExpectCall
+        "echomsg ">^.^< This line has an ExpectCall function."
+    else
+        echomsg ">-.-< This line does not have an ExpectCall function."
+    endif
+    return this_line_has_an_ExpectCall
+endfunction
+function! GetStringInsideDoubleQuotes()
+    "Return the string inside the double quotes.
+    let function_name = matchstr(getline('.'),'".*"')
+    "Strip the quotes.
+    return function_name[1:-2]
+endfunction
+function! AddStubToMockAndTest()
+    "echomsg ">^.^<"
+    let function_name = ""
+    if FileTypeIsC()
+        if FileIsALibTest()
+            if ThisLineHasAnExpectCall()
+                let function_name = GetStringInsideDoubleQuotes()
+            endif
+        endif
+    endif
+    if function_name == ""
+        echomsg ">-.-<   Nothing was done."
+    else
+        echomsg ">^.^< Do something with" function_name . "."
+        call PrintStubForMockLib(function_name)
+    endif
+endfunction
+function! PrintStubForMockLib(function_name)
+    "DOF is depended on function
+    "The DOF lib contains the functions that need to be stubbed.
+    "The mock DOF lib contains the stubs.
+    execute 'normal!Go'
+    execute 'normal!o=====[ Put this in the *DOF lib* `.h` ]====='
+    execute 'normal!oextern void (*' . a:function_name . ')(void);'
+
+    execute 'normal!o=====[ Put this in the *DOF lib* `.c` ]====='
+    execute 'normal!ostatic void ' . a:function_name . '_Implementation(void)'
+    execute 'normal!o{}'
+    execute 'normal!ovoid (*' . a:function_name . ')(void) = '
+                \. a:function_name . '_Implementation;'
+
+    "execute 'normal!o=====[ Put this in the *mock DOF lib* `.h` ]====='
+    "execute 'normal!ovoid Stub' . a:function_name . '(void);'
+    "execute 'normal!ovoid Unstub' . a:function_name . '(void);'
+
+    execute 'normal!o'
+    execute 'normal!o=====[ You need SetUpMock_FUT and TearDownMock_FUT in *mock DOF lib* ]====='
+    execute 'normal!o---The *mock DOF lib* `.c` needs the definitions you will be adding for '
+                \'`SetUpMock_FUT and `TearDownMock_FUT`---'
+    execute 'normal!o---The *mock DOF lib* `.h` needs the prototypes for '
+                \'`SetUpMock_FUT and `TearDownMock_FUT`---'
+    execute 'normal!o---These are the public functions called by the test.---'
+    execute 'normal!o---The code below supports those functions.---'
+    execute 'normal!o'
+    execute 'normal!o=====[ Put this in the *mock DOF lib* `.c` ]====='
+    execute 'normal!o---Prototypes used by `SetUpMock_FUT` and `TearDownMock_FUT`---'
+    execute 'normal!ostatic void Stub' . a:function_name . '(void);'
+    execute 'normal!ostatic void Unstub' . a:function_name . '(void);'
+    execute 'normal!o'
+    execute 'normal!o---Put this in the `SetUpMock_` function for this test---'
+    left
+        " Left align the above text.
+    execute 'normal!o    Stub' . a:function_name . '();'
+    execute 'normal!o'
+    execute 'normal!o---Put this in the `TearDownMock_` function for this test---'
+    left
+        " Left align the above text.
+    execute 'normal!o    Unstub' . a:function_name . '();'
+    execute 'normal!o'
+    execute 'normal!o---Paste the rest after the above, in the order given---'
+    left
+        " Left align the above text.
+    execute 'normal!ostatic void ' . a:function_name . '_Stubbed(void)'
+    execute 'normal!o{'
+    execute 'normal!oRecordCall(mock, "' . a:function_name . '");'
+    execute 'normal!o}'
+    execute 'normal!ostatic void (*' . a:function_name . '_Saved)(void);'
+    execute 'normal!ostatic void Stub' . a:function_name . '(void) {'
+    "execute 'normal!o{'
+    execute 'normal!o' . a:function_name . '_Saved = ' . a:function_name . ';'
+    execute 'normal!o' . a:function_name . ' = ' . a:function_name . '_Stubbed;'
+    execute 'normal!o}'
+    execute 'normal!ostatic void Unstub' . a:function_name . '(void) {'
+    "execute 'normal!o{'
+    execute 'normal!o' . a:function_name . ' = ' . a:function_name . '_Saved;'
+    execute 'normal!o}'
+    execute 'normal!o//'
+endfunction
 nnoremap <leader>yt :call AddTestToHeaderAndRunner()<CR>
 function! AddTestToHeaderAndRunner()
     "echo ">^.^<"
-    if &filetype != 'c'
+    if &filetype ==# 'vim'
+        call vimtdd#AddTestToHeader()
+        return
+    endif
+    if &filetype !=# 'c'
         echo ">-.-<   This is not a 'c' file. Nothing was done."
     else
-        " Find a test function on this line.
-        let function_name = matchstr(getline('.'),'test\S*.(')
-        if function_name == ''
-            echo ">-.-<  There is no 'test*' function on this line."
+        " No: Find a test function on this line.
+        " \S is regex for a non-whitespace character; opposite of \s
+        " See :h string-match and :h pattern
+        "let function_name = matchstr(getline('.'),'test\S*.(')
+        "if function_name == ''
+        "    echo ">-.-<  There is no 'test*' function on this line."
+        "        \"Nothing was done."
+        " Confirm this is a test file.
+        let file_name = matchstr(expand("%:t"),'test_')
+        let is_not_a_test_file = (file_name == '')
+        let is_a_test_file = !is_not_a_test_file
+        let function_name = matchstr(getline('.'),'.*(\&.*)')
+        let is_not_a_function = (function_name == '')
+        let is_a_function = !is_not_a_function
+            " See :h pattern
+            " \& is a branch and .* is any number (*) of any character (.)
+            " match everything up to ),
+            " but only if you also match everything up to (
+            " This has the nice result that anything *after* the ) is ignored.
+        if is_not_a_test_file
+            echo ">-.-<  This is not a 'test' file."
                 \"Nothing was done."
-        else
+        endif
+        if is_not_a_function
+            echo ">-.-<  There is no function on this line."
+                \"Nothing was done."
+        endif
+        if (is_a_test_file && is_a_function)
             "Mark this location with 'C' for test_libblah.[C]
             "normal! mC
-            "Remove the trailing (
-            let function_name = function_name[0:-2]
+            let function_name = matchstr(getline('.'),'.*(')
+            " TODO: agnostic to "void" on same line or a different line.
+            if (function_name[0:3] == "void")
+                "Remove the "void " and the trailing "("
+                let function_name = function_name[5:-2]
+            else
+                "Remove the trailing (
+                let function_name = function_name[0:-2]
+            endif
             "echo function_name
             "---Add the function to the test runner---
             "Find the test runner.
@@ -497,7 +1631,7 @@ function! AddTestToHeaderAndRunner()
                     "normal! mR
                     write
                     execute "noswapfile buffer #"
-                    call AddFunctionToHeader()
+                    call expectmocking#AddFuncDeclToHeader(0)
                     " This function also updates Cscope database and Ctags tags
                     " file. REFACTOR this so the caller does not rely on this
                     " function to always do this.
@@ -513,9 +1647,135 @@ function! AddTestToHeaderAndRunner()
         endif
     endif
 endfunction
+"OLD
+    "function! CurrentFiletypeIsC()
+    "    if &filetype == 'c'
+    "        "echo "This is a `c` file."
+    "    else
+    "        echo "This is not a `c` file."
+    "    endif
+    "    return &filetype == 'c'
+    "endfunction
+
 "---Test Wiring Plumbing---
-nnoremap <leader>yh :call AddFunctionToHeader()<CR>
-function! AddFunctionToHeader()
+nnoremap <leader>yh :call expectmocking#AddFuncDeclToHeader(add_silently)<CR>
+function! CreateNewHeaderFile(h_filename)
+    "Create a new header file and leave it open in the current window.
+    redraw
+    "echomsg "File '".a:h_filename."'"
+    "    \"does not exist in this project yet!"
+    let c_filehead = expand("%:h")
+    let h_filepath = c_filehead."/".a:h_filename
+    " Create #ifndef guard name
+    let h_NAME_H = "_" . toupper(expand("%:t:r")) . "_H"
+    " Eliminate macro name illegal tokens
+    execute 'let h_NAME_H = substitute(h_NAME_H, "-", "_","g")'
+    " #include the header in the .c file
+    execute "new"
+    " Insert #ifndef guards
+    execute "normal! i#ifndef " . h_NAME_H
+    execute "normal! o#define " . h_NAME_H
+    normal! o
+        "Insert a blank line between #ifndef guards and code.
+    "execute "normal! o" . expand(a:function_name)
+    "normal! A;
+    "    "Paste the function.
+    "    "Append a semicolon to the end of the line.
+    normal! o
+        "Insert a blank line between #ifndef guards and code.
+    execute "normal! o#endif // " . h_NAME_H
+    execute "write "h_filepath
+    quit
+    redraw
+    echomsg ">°.°<   Created new header file:"h_filepath
+    return h_filepath
+endfunction
+function! OldAddFunctionToHeader()
+    " Add the function signature to the header file.
+    let h_filename = expand("%:t:r") . ".h"
+    if !file#ThisIsC() || file#UnsavedChanges()
+        echo ">-.-<   Nothing was done."
+        return
+    endif
+    let function_signature = matchstr(getline('.'),'.*(\&.*)')
+        " Ignore everything after the final ')'
+    if function_signature == ''
+        echo ">-.-<  There is no function on this line. Nothing was done."
+        return
+    endif
+    "echomsg "function name is "function_signature
+    "echo "Ready to rock!"
+    "Search for header in a buffer:
+    let h_buffer_number = bufnr("^".h_filename."$")
+    let header_is_not_in_any_buffer = h_buffer_number == -1
+    if  header_is_not_in_any_buffer
+        "echo "File '".h_filename."' is not in any buffer."
+        "Search ANYWHERE in the project for h_filename:
+        let h_path = glob("**/".h_filename)
+        let header_file_does_not_exist = h_path == ''
+        if  header_file_does_not_exist
+            "echo "File '".h_filename."' is not in the project."
+            let h_path = CreateNewHeaderFile(h_filename)
+                "Creates a new header file and stays in that buffer.
+        endif
+        execute "edit "h_path
+            "Opens the existing header file.
+    else
+        echo "File '".h_filename."' is in buffer number"h_buffer_number."."
+        silent execute "noswapfile buffer "h_buffer_number
+            "Switches to the buffer with the header file.
+    endif
+    " At this point, the .h file exists and we are editing it!
+    " Check if the function prototype is already in the file
+    let function_signature = function_signature . ";"
+    let line_num = search('\M' . function_signature, 'nw')
+        "return the line_number in this window that matches the search
+        "\M: 'nomagic' so that * is not 'any number of the previous atom'
+        "w: search by wrapping the file
+        "n: do not move the cursor
+    let func_already_prototyped = line_num != 0
+    if  func_already_prototyped
+        execute "noswapfile buffer #"
+        echo "\"" . function_signature 
+                \. "\" is already in \"" . h_filename . "\"."
+        return
+    endif
+    "echo "Ready to rock!"
+    execute "normal! G2ko" . expand(function_signature)
+    normal! A
+        "Go two lines up from the end of the file.
+        "Paste the function.
+        "Append a semicolon to the end of the line.
+    write
+    silent execute "noswapfile buffer #"
+        " Go to the previous buffer (the c file)
+    "Add the #include header line to the .c file.
+    let include_header = "#include \"" . h_filename . "\""
+    "Search for this line.
+    "execute cursor(1,1)'/'.include_header
+    let line_num = search(include_header, 'nw')
+    let header_already_included = line_num != 0
+    if !header_already_included
+        let save_cursor = getcurpos()
+            " save the current cursor position in the window
+        execute '0put=include_header'
+            " paste the #include at the first line in the window
+        call setpos('.', save_cursor)
+            " restore the cursor to the original position in the window
+        execute "write"
+    endif
+    echo ">'.'<"'Updating cscope.out and tags...'
+    " Silently update the cscope database.
+    silent call UpdateCscopeDatabase()
+    " Silently update tags file.
+    silent call ctags#Update()
+    "call system("ctags -R .")
+    echo '>^.^< Updating cscope.out and tags... Done.'
+    redraw
+    echomsg ">^.^<   Added function prototype: `" . function_signature
+            \ . "` to `" . h_filename . "`"
+endfunction
+function! OldOldAddFunctionToHeader()
     " Add the function signature to the header file.
     "let orig_window_number = winnr()
     if &filetype != 'c'
@@ -525,14 +1785,18 @@ function! AddFunctionToHeader()
         echo "Please write changes before editing ".h_filename
     else
         " Find a function on this line.
-        let function_name = matchstr(getline('.'),'\S*.(')
+        " No: let function_name = matchstr(getline('.'),'\S*.(')
+        " This version works on function pointers too!
+        " It ignores everything after the final ')' (e.g., a one-liner):
+        let function_name = matchstr(getline('.'),'.*(\&.*)')
         if function_name == ''
             echo ">-.-<  There is no function on this line. Nothing was done."
         else
             "echo "Ready to rock!"
-            let function_name = function_name.")"
+            "let function_name = function_name.")"
             " Yank the line we are on.
-            normal! yy
+            " No, we are going to just use function_name, not the whole line:
+            " normal! yy
             let c_filename = expand("%:t")
             let c_filehead = expand("%:h")
             let h_filename = expand("%:t:r") . ".h"
@@ -560,6 +1824,8 @@ function! AddFunctionToHeader()
                     let h_filepath = c_filehead."/".h_filename
                     " Create #ifndef guard name
                     let h_NAME_H = "_" . toupper(expand("%:t:r")) . "_H"
+                    " Eliminate macor name illegal tokens
+                    execute 'let h_NAME_H = substitute(h_NAME_H, "-", "_","g")'
                     " #include the header in the .c file
                     execute "normal! ggO#include \"" . h_filename . "\""
                     execute "write"
@@ -569,7 +1835,8 @@ function! AddFunctionToHeader()
                     execute "normal! o#define " . h_NAME_H
                     normal! o
                         "Insert a blank line between #ifndef guards and code.
-                    normal! pA;
+                    execute "normal! o" . expand(function_name)
+                    normal! A;
                         "Paste the function.
                         "Append a semicolon to the end of the line.
                     normal o
@@ -589,7 +1856,7 @@ function! AddFunctionToHeader()
                     " Silently update the cscope database.
                     call UpdateCscopeDatabase()
                     " Silently update tags file.
-                    call UpdateCtags()
+                    call ctags#Update()
                     "call system("ctags -R .")
                     return
                 else
@@ -608,7 +1875,9 @@ function! AddFunctionToHeader()
             "
             " At this point, if the .h file exists, we are editing it!
             "echo "Ready to rock!"
-            normal! G2kpA;
+            "normal! G2kpA;
+            execute "normal! G2ko" . expand(function_name)
+            normal! A;
                 "Go two lines up from the end of the file.
                 "Paste the function.
                 "Append a semicolon to the end of the line.
@@ -623,7 +1892,7 @@ function! AddFunctionToHeader()
         " Silently update the cscope database.
         call UpdateCscopeDatabase()
         " Silently update tags file.
-        call UpdateCtags()
+        call ctags#Update()
         "call system("ctags -R .")
         endif
     endif
@@ -799,6 +2068,10 @@ endfunction
     "nnoremap <leader>mc :call CloseTestResults()<CR>:make clean-all-builds file-stem=%:t:r<CR><CR><CR>:call MakeQuickfix()<CR>
 nnoremap <leader>mka :call CloseTestResults()<CR>:make avr-target compiler=avr-gcc<CR><CR><CR>:call MakeQuickfix()<CR>
     " Build the TestSuite using avr-gcc.
+nnoremap <leader>mna :make avr-target compiler=avr-gcc -n<CR>
+    " See what make recipe is invoked by ;mka.
+nnoremap <leader>mkp :make test_programmer_is_connected<CR>
+nnoremap <leader>mkv :make display_target_voltage<CR>
 "nnoremap <leader>mkc :call CloseTestResults()<CR>:make compiler=gcc<CR><CR><CR>:call MakeQuickfix()<CR>
 "nnoremap <leader>mkc :call CloseTestResults()<CR>:make compiler=gcc file-stem=%:t:r<CR><CR><CR>:call MakeQuickfix()<CR>
 nnoremap <leader>mkc :call MakeDefaultTargetWithGcc(expand("%:t:r"))<CR><CR>
@@ -833,7 +2106,13 @@ nnoremap <leader>mkl :call MakeDefaultTargetWithClang(expand("%:t:r"))<CR><CR>
     " file stem.
 function! MakeDefaultTargetWithClang(file_stem)
     call CloseTestResults()
-    execute "make compiler=clang file-stem=" . a:file_stem
+    "execute "make compiler=clang file-stem=" . a:file_stem
+    execute "make --warn-undefined-variables compiler=clang file-stem=" . a:file_stem
+    "execute "make -i --warn-undefined-variables compiler=clang file-stem=" . a:file_stem . " > mk-output.md"
+    " -i ignores errors (but they still are reported and Vim attempts to open an
+    "  empty buffer.
+    "  > mk-output.md is no good because it steals the output stream from
+    "  QuickFix.
     let l:build_passed = MakeQuickfix()
     if l:build_passed
         redraw
@@ -857,7 +2136,8 @@ endfunction
 
 function! MakeQuickfix()
     "Update the build/ folder in the NERDTree window.
-    call RefreshNERDTreeFolder_build()
+    "call RefreshNERDTreeFolder_build()
+        " No, when there are many files, this takes too long.
     "call CloseTestResults()
         " Close test output window before calling copen.
         "       The goal is to prevent the quickfix window from landing below
@@ -879,8 +2159,8 @@ function! MakeQuickfix()
         if len(getqflist()) > 10
             execute (10+2)."wincmd _"
         else
-            execute (len(getqflist())+2)."wincmd _"
             " Set the quickfix window to the height of the build output.
+            execute (len(getqflist())+2)."wincmd _"
             " +2 is to account for some soft-wrapping (long error messages).
         endif
         "execute l:first_error_line
@@ -944,9 +2224,24 @@ nnoremap <leader>mtl :call CloseTestResults()<CR>:make compiler=clang<CR><CR><CR
 nnoremap <leader>mt+ :call CloseTestResults()<CR>:make compiler=g++<CR><CR><CR>:call MakeQuickfixAndTest()<CR>
     " Run the default make target and unittest if no errors.
     " Same as the two mappings: ;mk ;te
-nnoremap <leader>mfa :call CloseLogfileWindows()<CR>:make avr-target compiler=avr-gcc<CR><CR><CR>:call MakeQuickfixAndDownloadFlash()<CR><CR>
+nnoremap <leader>k 
+            \:call TestLineBreak()<CR>
+function! TestLineBreak()
+    echomsg s:trippy_kitty
+endfunction
+"nnoremap <leader>mfa :call CloseLogfileWindows()<CR>:make avr-target compiler=avr-gcc<CR><CR><CR>:call MakeQuickfixAndDownloadFlash()<CR><CR>
+" nnoremap <leader>mfa :call avrmake#CloseLogfileWindows()<CR>
+            " \:make avr-target compiler=avr-gcc<CR><CR><CR>
+            " \:call MakeQuickfixAndDownloadFlash()<CR><CR>
+nnoremap <leader>mfa :call BuildAndDownloadFlash()<CR><CR><CR>
+function! BuildAndDownloadFlash()
+    " call avrmake#CloseLogfileWindows() -- nah, this is just annoying
+    execute 'make avr-target compiler=avr-gcc'
     " Build the TestSuite using avr-gcc.
     " If the build is OK, download flash.
+    call MakeQuickfixAndDownloadFlash()
+    redraw | echomsg s:happy_kitty | return
+endfunction
 nnoremap <leader>mrc :call MakeDefaultTargetWithGccAndReadOutput(expand("%:t:r"))<CR><CR>
 function! MakeDefaultTargetWithGccAndReadOutput(file_stem)
     call CloseExampleOutputWindows()
@@ -1037,7 +2332,8 @@ function! ReadMarkdownFile(file_name)
             \ &&
             \ (&buftype == 'nofile')
         \ )
-    call RefreshNERDTreeFolder_build()
+    "call RefreshNERDTreeFolder_build()
+        " very slow when there are many files in the build folder
     execute "NERDTreeFocus"
     let l:match = search(a:file_name)
         "Find the .md output file.
@@ -1049,6 +2345,8 @@ function! ReadMarkdownFile(file_name)
         execute "normal s"
             " Open in a vertical split."
         execute "set readonly"
+        execute "normal! zR"
+            " Unfold all.
         execute "noh"
             " Remove highlighting from the last search
         redraw
@@ -1094,6 +2392,7 @@ function! ReadExampleOutput(file_stem)
     execute "normal s"
         " Open in a vertical split."
     execute "set readonly"
+    execute "normal! zR"
     "=====[ ReadExampleOutput ends here ]=====
     execute "noh"
         " Remove highlighting from the last search
@@ -1108,7 +2407,9 @@ function! MakeQuickfixAndTest()
         cclose
         redraw
         echomsg ">^.^<  make...OK.    <°.°>  Running unit tests..."
-        call RunUnityTestSuite()
+        "call RunUnityTestSuite()
+        "2018-04-18: Refactored to match new Makefile.
+        call ReadTestResults()
         redraw
         echomsg ">^.^<  make...OK.    >▸.~<  Unit tests finished: see results above. "
     endif
@@ -1118,7 +2419,8 @@ function! DownloadFlash()
     "echo "DownloadFlash >^.^<"
     execute "make download_flash"
     "Refresh the build folder.
-    call RefreshNERDTreeFolder_build()
+    " call nerdtree_#RefreshFolder('build')
+    " well why? -- the open logs shortcut will refresh the build folder
 endfunction
 function! MakeQuickfixAndDownloadFlash()
     "=====[ Summary: ]=====
@@ -1133,10 +2435,48 @@ function! MakeQuickfixAndDownloadFlash()
         call DownloadFlash()
         "Go to NERDTree window."
         "Open *stdout.log in vsplit. Open *stderr.log in hsplit.
-        call OpenDownloadFlashLogs()
+        " call OpenDownloadFlashLogs() -- nah, this is just annoying
     endif
+    " echomsg s:sad_kitty . 'Build failed.'
 endfunction
 function! OpenDownloadFlashLogs()
+    let pwd_head = avrmake#PwdHead()
+    " echomsg s:trippy_kitty . 'head: `' . pwd_head . '`' | return
+    " echomsg s:happy_kitty | return
+    let not_invoked_from_nerdtree_window =
+        \!(
+            \ (&filetype == 'nerdtree')
+            \ &&
+            \ (&buftype == 'nofile')
+        \ )
+    if !nerdtree_#RefreshFolder('build') | return | endif
+    "
+    " Refresh succeeded.
+    execute "NERDTreeFocus"
+    " ---flash success/fail---
+    " call search('atprogram-download_flash-stdout.log')
+    " Open in a horizontal split, leave focus in NERDTree window.
+    " execute "normal gi"
+    " ---flash error log---
+    " call search('atprogram-download_flash-stderr.log')
+    " execute "normal gi"
+    " ---.elf sizes---
+    " pwd_head is either `simBrd` or `mBrd`
+    call search('avr-size_' . pwd_head . '.log')
+    execute "normal gi"
+    " call avrmake#ResizeWindowHeight('build/atprogram-download_flash-stdout.log', 3)
+    " call avrmake#ResizeWindowHeight('build/atprogram-download_flash-stderr.log', 3)
+    call avrmake#ResizeWindowHeight('build/avr-size_' . pwd_head . '.log', 3)
+    " echomsg s:happy_kitty | return
+    if not_invoked_from_nerdtree_window
+        execute "wincmd p"
+        " Return to the original window.
+    endif
+    echomsg ">▸.~<  flash_download logs are shown. ';f<Space>' to close."
+endfunction
+"Old version
+function! OldOpenDownloadFlashLogs()
+    " echomsg s:happy_kitty | return
     " TODO: Refactor with RefreshNERDTreeWindow() to remove duplication.
     " Open the log files created when downloading the flash with make
     " download_flash.
@@ -1147,30 +2487,40 @@ function! OpenDownloadFlashLogs()
             \ &&
             \ (&buftype == 'nofile')
         \ )
+    " echomsg s:happy_kitty | return
+    " Go to NERDTree window.
     execute "NERDTreeFocus"
+    " Place cursor on root folder to jump past any bookmarks with the word
+    " 'build'
+    execute "normal P"
+    " echomsg s:happy_kitty | return
     "=====[ OpenDownloadFlashLogs starts here ]=====
-    /build\/
+    " /build\/ " old way
+    " new way: use `search()`, `W` means `don't Wrap around the end`
+    if !search('build', 'W')
+        echomsg 'Cannot see `build` folder.'
+        return
+    endif
+    " echomsg s:happy_kitty | return
     execute "normal O"
         " NERDTree-O opens a node recursively. This guarantees it will be open.
         " NERDTree-o toggles a node open and closed.
         " Note this must be 'normal' and not 'normal!' for 'O' to behave as
         " 'NERDTree-O' because 'O' already has a Vim mapping.
-    " TODO: Come back to this later when the fragility is troublesome.
-        " The following sequence is fragile.
-        " It depends on there being at least one file already open.
-        " NERDTree does not have any means to control where "s" and "i" open new
-        " windows. The defaults are good, but it required the following fragile
-        " kludge for what the vsplit/hsplit I wanted.
-    /atprogram-download_flash-stdout\.log
-    execute "normal s"
-        " Open in a vertical split."
-    execute "wincmd r"
-        " Swap positions with whatever file was already open so that NERDTree-i
-        " opens stderr.log in a horizontal split with stdout.log.
-    execute "NERDTreeFocus"
-    /atprogram-download_flash-stderr\.log
+    " /atprogram-download_flash-stdout\.log " old way
+    call search('atprogram-download_flash-stdout.log') " new way
+    " echomsg s:happy_kitty | return
     execute "normal gi"
         " Open in a horizontal split, leave focus in NERDTree window.
+    " echomsg s:happy_kitty | return
+    " execute "wincmd r"
+        " Swap positions with whatever file was already open so that NERDTree-i
+        " opens stderr.log in a horizontal split with stdout.log.
+    " /atprogram-download_flash-stderr\.log " old way
+    call search('atprogram-download_flash-stderr.log') " new way
+    execute "normal gi"
+        " Open in a horizontal split, leave focus in NERDTree window.
+    " echomsg s:happy_kitty | return
     "=====[ OpenDownloadFlashLogs ends here ]=====
     if not_invoked_from_nerdtree_window
         execute "wincmd p"
@@ -1179,8 +2529,8 @@ function! OpenDownloadFlashLogs()
     execute "noh"
         " Remove highlighting from the last search
     redraw
-    echomsg ">^.^<  simBrd build OK and flash downloaded.   "
-        \">▸.~<  atprogram-flash_download logs are shown. ';f<Space>' to close."
+    " echomsg ">^.^<  simBrd build OK and flash downloaded.   "
+    echomsg ">▸.~<  flash_download logs are shown. ';f<Space>' to close."
 endfunction
 function! TryListingBuffers()
     "This is me figuring out how to use Vim lists again...
@@ -1298,55 +2648,57 @@ function! _CloseExampleOutputWindows()
         endfor
         echomsg ">^.^<  Closed quickfix window and markdown output."
 endfunction
-nnoremap <leader>f<Space> :cclose<CR>:call CloseLogfileWindows()<CR>
-function! CloseLogfileWindows()
-    "TODO" get rid of those return statements! Whichever file is found missing
-    "first, the whole function gets exited, even if there are other files that
-    "are open.
-    " Close the LogfileWindows for the active project.
-    "Replaced the following with a list:
-        "let l:log_atprogram_stdout = './build/atprogram-download_flash-stdout.log'
-        "let l:log_atprogram_stderr = './build/atprogram-download_flash-stderr.log'
-        "let l:buffer_number_stdout = bufnr(l:log_atprogram_stdout)
-        "let l:buffer_number_stderr = bufnr(l:log_atprogram_stderr)
-        "let l:buffer_number = l:buffer_number_stderr
+nnoremap <leader>f<Space> :cclose<CR>:call avrmake#CloseLogfileWindows()<CR>
+"nnoremap <leader>f<Space> :cclose<CR>:call CloseLogfileWindows()<CR>
+"old
+"function! CloseLogfileWindows()
+"    "TODO" get rid of those return statements! Whichever file is found missing
+"    "first, the whole function gets exited, even if there are other files that
+"    "are open.
+"    " Close the LogfileWindows for the active project.
+"    "Replaced the following with a list:
+"        "let l:log_atprogram_stdout = './build/atprogram-download_flash-stdout.log'
+"        "let l:log_atprogram_stderr = './build/atprogram-download_flash-stderr.log'
+"        "let l:buffer_number_stdout = bufnr(l:log_atprogram_stdout)
+"        "let l:buffer_number_stderr = bufnr(l:log_atprogram_stderr)
+"        "let l:buffer_number = l:buffer_number_stderr
 
-    let l:logfile_buffers = [
-        \'./build/atprogram-download_flash-stdout.log',
-        \'./build/atprogram-download_flash-stderr.log'
-        \]
-    for l:logfile in l:logfile_buffers
-        let l:buffer_number = bufnr(l:logfile)
-        if l:buffer_number == -1
-            "echo "Nothing to do. Logfile " . l:logfile . " is not in any buffer."
-            echomsg ">^.^< Closed quickfix window. No logfiles in any buffers."
-            return
-        else
-            "Buffer exists... Does the window exist?"
-            let window_id = win_findbuf(buffer_number)
-            if window_id != []
-                "echo "Logfile " . l:logfile . 
-                "    \" is at window_id " . string(window_id)
-                let found_it = win_gotoid(window_id[0])
-                if found_it
-                    " Close it and delete the buffer.
-                    execute "bd!" l:buffer_number
-                else
-                    echo "The logfile window exists but I cannot find it."
-                    " TODO: Return an error here to notify the caller.
-                    return
-                endif
-            else
-                "echo "Nothing to do: " . l:logfile . 
-                "    \" is in buffer " . l:buffer_number .
-                "    \", but is not in any window."
-                echomsg ">^.^< Closed quickfix window. No open logfile to close."
-                return
-            endif
-        endif
-    endfor
-    echomsg ">^.^<  Closed windows with quickfix and atprogram-flash_download logs."
-endfunction
+"    let l:logfile_buffers = [
+"        \'./build/atprogram-download_flash-stdout.log',
+"        \'./build/atprogram-download_flash-stderr.log'
+"        \]
+"    for l:logfile in l:logfile_buffers
+"        let l:buffer_number = bufnr(l:logfile)
+"        if l:buffer_number == -1
+"            "echo "Nothing to do. Logfile " . l:logfile . " is not in any buffer."
+"            echomsg ">^.^< Closed quickfix window. No logfiles in any buffers."
+"            return
+"        else
+"            "Buffer exists... Does the window exist?"
+"            let window_id = win_findbuf(buffer_number)
+"            if window_id != []
+"                "echo "Logfile " . l:logfile . 
+"                "    \" is at window_id " . string(window_id)
+"                let found_it = win_gotoid(window_id[0])
+"                if found_it
+"                    " Close it and delete the buffer.
+"                    execute "bd!" l:buffer_number
+"                else
+"                    echo "The logfile window exists but I cannot find it."
+"                    " TODO: Return an error here to notify the caller.
+"                    return
+"                endif
+"            else
+"                "echo "Nothing to do: " . l:logfile . 
+"                "    \" is in buffer " . l:buffer_number .
+"                "    \", but is not in any window."
+"                echomsg ">^.^< Closed quickfix window. No open logfile to close."
+"                return
+"            endif
+"        endif
+"    endfor
+"    echomsg ">^.^<  Closed windows with quickfix and atprogram-flash_download logs."
+"endfunction
 
 nnoremap <leader>t<Space> :cclose<CR>:call CloseTestResults()<CR>
 function! CloseTestResults()
@@ -1397,7 +2749,8 @@ endfunction
     "        return
     "    endif
 
-nnoremap <leader>te :call CloseTestResults()<CR>:call RunUnityTestSuite()<CR>
+nnoremap <leader>te :call CloseTestResults()<CR>:call ReadTestResults()<CR>
+"nnoremap <leader>te :call CloseTestResults()<CR>:call RunUnityTestSuite()<CR>
 function! DeleteOldTestResultsMd()
     " Delete the test-results .md file.
         " The old test-results .md file hides a failed build. If a build fails,
@@ -1416,6 +2769,31 @@ function! DeleteOldTestResultsMd()
         " to run make twice to see this message:
         "No rule to make target 'test/test_examples.c', needed by 'build/TestSuite.exe'.
     call system('rm -f ./build/TestSuite-results.md')
+endfunction
+function! ReadTestResults()
+    "2018-04-18: Refactored to match new Makefile.
+        " Refactoring my test-results reporting now that I have the
+        " Makefile generating the markdown from the .exe.
+    "echomsg ">^.^<"
+    " Get the window number so we can return back later.
+    let orig_window_number = winnr()
+    " Open a new window to display the test results.
+    botright new
+    " Run the TestSuite and store the test results.
+        "execute "call DeleteOldTestResultsMd()"
+            "This is unnecessary now because `make` will determine if the
+            "TestResults are old based on the prerequisites.
+    execute 'view build/TestSuite-results.md'
+    "Use the default syntax highlighting."
+    setlocal filetype=
+    " Color the test output with Vim matching.
+    call ColorMeUnittest()
+    "Auto-adjust the window height to fit the test report.
+    call BufAutoHeight()
+    " Put the cursor back in the window that invoked the TestSuite.
+    execute orig_window_number . "wincmd w"
+    redraw
+    echo ">▸.~<  Unit tests finished: see results above."
 endfunction
 function! RunUnityTestSuite()
     " Get the window number so we can return back later.
@@ -1567,7 +2945,236 @@ endfunction
     " 
     " set makeprg=polyperl\ -vc\ %\ $*
 "---EXPERIMENTAL---
+" Git shortcuts
+"nnoremap gl :!git log --pretty=format:"- \%C(yellow)\%ci \%C(blue)\%>(15)\%ar \%C(reset)\%s"<CR>
+nnoremap gl :call GitLogWithTimesToConsole()<CR>
+function! GitLogWithTimesToConsole()
+    "Display the git log in the bash terminal.
+    execute GitLogWithTimes()
+endfunction
+function! GitLogWithTimes()
+    "This is a pretty one-liner with timestamps for me to predict how long
+    "development takes.
+    "Return the string with the one-liner command.
+    "Other functions execute the string returned by this function.
+    return '!git log --pretty=format:"- \%C(yellow)\%ci \%C(blue)\%>(15)\%ar \%C(reset)\%s"'
+endfunction
+nnoremap gL :call GitLogWithTimesToFile()<CR><CR>
+function! GitLogWithTimesToFile()
+    "Record the git log to file.
+    execute GitLogWithTimes() . ' > git-commits.md'
+    "execute "normal! \<CR>"
+    redraw
+    echomsg s:happy_kitty 'Git commits are logged in `git-commits.md`.'
+endfunction
+"Find the next/prev C function definition quickly:
+nnoremap <leader>fd :call FindNextFunctionDefinition()<CR>
+nnoremap <leader>FD :call FindPrevFunctionDefinition()<CR>
+function! FindNextFunctionDefinition()
+    let save_cursor = getcurpos()
+    " Try to go to the next function.
+    normal! 0]]
+    let cursor_lnum  = save_cursor[1]
+    let funcdef_lnum = getcurpos()[1]
+    " First check that we did not just move from a function name to its {.
+    let in_same_function = (funcdef_lnum - cursor_lnum) == 1
+    if in_same_function
+        " Need one more ']]' to get to the next function.
+        normal! ]]
+    endif
+    " Now check that we are actually at a function definition.
+    let found_a_funcdef = getline('.')[0] == '{'
+    let no_more_functions = !found_a_funcdef
+    if no_more_functions
+        call setpos('.', save_cursor)
+        echo 'Already at last function definition.'
+        return
+    endif
+    "This is the '{' of the next function definition!
+    "Now just go up one line to be on the function definition.
+    normal! k
+    "And restore whatever column the cursor was on.
+    let new_cursor = getcurpos()
+    let new_cursor[2] = save_cursor[2]
+    call setpos('.', new_cursor)
+    echomsg 'Moved to next function definition.'
+endfunction
+function! FindPrevFunctionDefinition()
+    let save_cursor = getcurpos()
+    " Try to go to the next function.
+    normal! 0[[
+    let cursor_lnum  = save_cursor[1]
+    let funcdef_lnum = getcurpos()[1]
+    " Check that we are actually at a function definition.
+    let found_a_funcdef = getline('.')[0] == '{'
+    if !found_a_funcdef
+        call setpos('.', save_cursor)
+        echo 'Already at first function definition.'
+        return
+    endif
+    "This is the '{' of the previous function definition!
+    "Now just go up one line to be on the function definition.
+    normal! k
+    "And restore whatever column the cursor was on.
+    let new_cursor = getcurpos()
+    let new_cursor[2] = save_cursor[2]
+    call setpos('.', new_cursor)
+    echomsg 'Moved to previous function definition.'
+endfunction
+"Quickly change fold method: see :h fold-expr
+nnoremap <leader>zm :call SetFoldmethodManual()<CR>
+function! SetFoldmethodManual()
+    " Make large markdown files snappier.
+    " Alas, this is not th eproblem with my .vimrc lag
+    set foldmethod=manual
+endfunction
+nnoremap <leader>zx :call SetFoldmethodExpr()<CR>
+function! SetFoldmethodExpr()
+    " I think this also calculates folds, so no need to `zx`.
+    set foldmethod=expr
+endfunction
+nnoremap <leader>zi :call SetFoldmethodIndent()<CR>
+function! SetFoldmethodIndent()
+    " I think this also calculates folds, so no need to `zx`.
+    set foldmethod=indent
+endfunction
+
+"Create a table-of-contents link for BitBucket markdown
+nnoremap <leader>l ^wy$o-<Space>[<Esc>pA]<Esc>o(#markdown-header-<Esc>pA)<Esc>:s/<Space>/-/ge<CR>:noh<CR>VukJxdd?---e-n-d---<CR>kP''k
+    " Implementation:
+    " Yank all text after the '#' symbols, paste on a new line,
+    " create the link text by bracketing with [ ],
+    " paste on another line and prefix with '(#markdown-header-',
+    " convert spaces to dashes, convert to all lower case, end with ')',
+    " join into one line with no space, delete the text, go to the end of the
+    " table of contents and paste it in, then hop back to the section heading
+    " where you invoked this command.
+    "
+    " Use /e to suppress error from failed search. See :h s_flags.
+    " BitBucket requires the link start with "markdown-header-"
+    " Usage:
+    " Place text anywhere on a section title, hit:
+    "   ;l
+    " If the section title text contained '*' delete it from the link (the
+    " lower-case version of the section title that has hyphens replacing
+    " spaces).
+    " TODO: auto-delete the '*'
+    " Characters not allowed in links:
+        " *
+        " ?
+        " -
+    " The only thing I've found I can use so far is underscore: _
+nnoremap <leader>o 0i[//]:<Space>#<Space>(<Esc>A<Space>)<Esc>
+nnoremap <leader>i :s/\[\/\/\]\:<Space>#<Space>(//<CR>:noh<CR>$db
+
+"surround with brackets
+nnoremap <leader>w{ :call SurroundWordWithMatching(['{', '}'])<CR>
+nnoremap <leader>w( :call SurroundWordWithMatching(['(', ')'])<CR>
+nnoremap <leader>W{ :call SurroundWcapWithMatching(['{', '}'])<CR>
+nnoremap <leader>W( :call SurroundWcapWithMatching(['(', ')'])<CR>
+function! SurroundWordWithMatching(symbol_list)
+    "for symbol in a:symbol_list
+        " echo symbol
+    "endfor
+    execute "normal! ciw" . a:symbol_list[0] . a:symbol_list[1]
+    execute "normal! P"
+endfunction
+function! SurroundWcapWithMatching(symbol_list)
+    "for symbol in a:symbol_list
+        " echo symbol
+    "endfor
+    execute "normal! ciW" . a:symbol_list[0] . a:symbol_list[1]
+    execute "normal! P"
+endfunction
+"surround a highlighted region with symbols
+vnoremap <leader>` di``<Esc>gP
+vnoremap <leader>' di''<Esc>gP
+vnoremap <leader>I di**<Esc>gP
+vnoremap <leader>B di****<Esc>hgP
+"vnoremap <leader>` :call SurroundSelectionWith("`",1)<CR>
+"function! SurroundSelectionWith(symbol, number)
+    "execute 'normal! di`<Esc>gpa`<Esc>'
+"endfunction
+
+"remove surrounding symbols
+nnoremap <leader>w<Space> :call RemoveCharsAroundWord()<CR>
+function! RemoveCharsAroundWord()
+    "Example
+    "if string is ' *italics* '
+    "remove '*' resulting in ' italics '
+    let save_cursor = getcurpos()
+    execute 'normal! "xdiwh"yd2l'
+        " "x place cut word  in reg x
+        " "y place cut chars in reg y
+        "'bo[b]'
+        "diw - cut the inner word, leaving the surrounding chars behind
+        "'[']
+        "h - move to first surrounding char
+        "[']'
+        "d2l - cut the surrounding chars
+        " nothing left!
+    execute 'normal! "xP'
+    call setpos('.', save_cursor)
+    execute 'normal! h'
+endfunction
+"surround a word [w] or a whole line [V] in symbols for markdown
+nnoremap <leader>`` :call SurroundWordWith("`",1)<CR>
+nnoremap <leader>w` :call SurroundWordWith("`",1)<CR>
+nnoremap <leader>W` :call SurroundWcapWith("`",1)<CR>
+nnoremap <leader>V` :call SurroundLineWith("`",1)<CR>
+nnoremap <leader>"" :call SurroundWordWith('"',1)<CR>
+nnoremap <leader>w' :call SurroundWordWith("'",1)<CR>
+nnoremap <leader>W' :call SurroundWcapWith("'",1)<CR>
+nnoremap <leader>w" :call SurroundWordWith('"',1)<CR>
+nnoremap <leader>W" :call SurroundWcapWith('"',1)<CR>
+nnoremap <leader>V" :call SurroundLineWith('"',1)<CR>
+"nnoremap <leader>** :call SurroundWordWith("*",1)<CR>
+nnoremap <leader>wI :call SurroundWordWith("*",1)<CR>
+nnoremap <leader>wB :call SurroundWordWith("*",2)<CR>
+nnoremap <leader>WI :call SurroundWcapWith("*",1)<CR>
+nnoremap <leader>WB :call SurroundWcapWith("*",2)<CR>
+nnoremap <leader>~~ :call SurroundWordWith("~",2)<CR>
+nnoremap <leader>w~ :call SurroundWordWith("~",2)<CR>
+nnoremap <leader>W~ :call SurroundWcapWith("~",2)<CR>
+nnoremap <leader>V~ :call SurroundLineWith("~",2)<CR>
+function! SurroundLineWith(symbol, number)
+    let l:done = 0
+    while l:done < a:number
+        let l:done += 1
+        execute "normal! ^C" . a:symbol . a:symbol
+            "ciw - changes the whole word with cursor starting anywhere on the word
+            "insert the opening and closing symbol
+        execute "normal! P"
+    endwhile
+endfunction
+function! SurroundWcapWith(symbol, number)
+    let l:done = 0
+    while l:done < a:number
+        let l:done += 1
+        execute "normal! ciW" . a:symbol . a:symbol
+        execute "normal! P"
+    endwhile
+endfunction
+function! SurroundWordWith(symbol, number)
+    " TODO: refactor
+        " Change to one argument that is a list of symbols.
+        " Iterate the list with a for loop instead of this while loop.
+    let l:done = 0
+    while l:done < a:number
+        let l:done += 1
+        execute "normal! ciw" . a:symbol . a:symbol
+            "ciw - changes the whole word with cursor starting anywhere on the word
+            "insert the opening and closing symbol
+        execute "normal! P"
+    endwhile
+endfunction
+function! SurroundWithBackticks()
+    "echomsg ">^.^<"
+    execute "normal! diwi`"
+    execute "normal! gpi`"
+endfunctio
 nnoremap <leader>[] i[<Esc>lli]<Esc>h
+nnoremap <leader>_ i <Esc>lli <Esc>h
 nnoremap <silent> <leader>gt :s/\w\+/\L\u\0/g<CR>:noh<CR>
     "Make This Line Titlecase.
     "This next version does the same thing, but I could not get it to work in
@@ -1619,7 +3226,31 @@ set ttimeoutlen=0
 set notimeout
     "Never timeout. 1s is a little too short. But why even timeout? If I want to
     "end a command I started by accident, I'll just hit Esc.
-map <F2> :term<CR>
+"Special keys see: :h <>
+nnoremap <F2> :call OpenTerminalInVerticalSplit()<CR>
+"nnoremap <S-F2> :call CloseTerminalInVerticalSplit()<CR>
+    " No dice. <S-F2> prints Q2 to the terminal window.
+    " What key besides Ctrl does anything? What other combos can I do besides
+    " Ctrl-w?
+function! OpenTerminalInVerticalSplit()
+    execute "term"
+    execute "wincmd L"
+    "<C-w>{motion} to leave the window.
+    "<C-w>: to access the Vim command line.
+endfunction
+function! CloseTerminalInVerticalSplit()
+    " TODO: figure out how to invoke this from the terminal!
+    " TODO: generalize this to close from any window.
+    "
+    " Close the terminal window with :bw!
+    " This removes it completely. With :bd it is still hidden. With :q! it is
+    " still hidden.
+    "
+    " This must be called from the terminal window, otherwise it closes the
+    " window you are in.
+    execute "bw!"
+endfunction
+
 "---Compiling a self-contained c file---
     "gcc sample.c -Wall -std=c99 -Wextra -pedantic -o Sample
 
@@ -1695,8 +3326,22 @@ nnoremap <silent> <leader>-U yyP^v$gr-j
 nnoremap <silent> <leader>-u yyp^v$gr-k
     " [-u]underline the text.
     " Place a line of '-' below the text.
-nnoremap <silent> <leader>-s I=====[<Space><Esc>A<Space>]=====<Esc>F[w
+
+nnoremap <silent> <leader>-s I---<Esc>A---<Esc>bb
     " Surround the text with =====[ text ]=====
+nnoremap <silent> <leader>=s I=====[<Space><Esc>A<Space>]=====<Esc>F[w
+    " Surround the text with =====[ text ]=====
+nnoremap <silent> gcs :call SurroundWithEqAndSqBrackThenComment()<CR>
+    " Surround text like ;=s but also comment the line using surround.vim
+function! SurroundWithEqAndSqBrackThenComment()
+    echomsg s:happy_kitty
+    " execute 'normal! I=====[\<Space>\<Esc>A\<Space>]=====\<Esc>F[w'
+    execute 'normal! I=====[ '
+    execute 'normal! A ]====='
+    execute 'normal! F[w'
+    execute 'normal gcc'
+    " gcc is from the surround.vim plugin
+endfunction
 nnoremap <silent> <leader>-b I<Bar><Space><Esc>A<Space><Bar><Esc>yyP^v$gr-jyyp^v$gr-k
     " [-B]ox the text.
     " Surround the text with bars: | blah text |.
@@ -1739,6 +3384,10 @@ vnoremap <C-v> v
 " Remove ^M from the file in the active window.
 nnoremap <leader>eol :call RemoveEolCaretM()<CR>
 function! RemoveEolCaretM()
+    " Keywords to help you find this function in the future
+    "   end-of-line
+    "   carriage return
+    "   ctrl-M control M ^M
     " Do not run this on the .vimrc or you'll mess up this function!
     " :%s/^M//g
     " Which is entered by typing this:
@@ -1794,6 +3443,14 @@ let g:NERDTreeDirArrowExpandable = '▸'
 let g:NERDTreeDirArrowCollapsible = '▾'
 let NERDTreeChDirMode = 1
 
+nnoremap <leader>ncd :call ChangeDirectoryAndTreeToCurrentFile()<CR>
+function! ChangeDirectoryAndTreeToCurrentFile()
+    execute "cd %:h"
+    NERDTreeFind
+    execute "wincmd p"
+        " Return to the window where ;ncd was invoked.
+endfunction
+
 nnoremap <leader>nf :NERDTreeFind<CR>
     " (n)ERDTree(f)ind
     " Explore the directory of the current buffer.
@@ -1811,14 +3468,25 @@ nnoremap <leader>nt :NERDTreeToggle<CR>
     " :NERDTreeToggle toggles the view of the current buffer directory, not the
     " Vim current directory. This is exactly the behavior you would expect/want,
     " it's only worth noting because when you first open Vim, you can just
-    " straightaway do ;nt instead ;nv. And of course, if you ;nv again, then ;nt
+    " straightaway do ;nt instead ;ne. And of course, if you ;ne again, then ;nt
     " goes back to toggling the view of the current Vim directory.
-nnoremap <leader>nv :NERDTree<CR>
+" nnoremap <leader>nv :NERDTree<CR>
+    " I retired this because I realized ;ne made more sense.
+        " Instead of one command to only open the current directory, now you
+        " have the option of hitting Enter for the current direcotry (default)
+        " or pressing Tab to see what directories you can go to, or just
+        " entering the directory at the command line.
+    "
+    " Old notes:
     " (n)ERDTree for the (v)im current directory
     " Explore the current vim directory.
     " I thought about this mapping:
     " nnoremap <leader>n<Space> :NERDTree<CR>
     " But nv makes more sense as the (n)ERDTree for the (v)im current directory.
+nnoremap <leader>ne :NERDTree<Space>
+    " Start command to browse a path.
+    " Open the current directory by pressing Enter.
+    " Or enter the path to browse. Or hit tab.
 nnoremap <leader>nb :NERDTreeFromBookmark<Space>
     " Start command to open from bookmark.
     " This command combines with:
@@ -1827,7 +3495,10 @@ nnoremap <leader>nb :NERDTreeFromBookmark<Space>
     " when the project is opened by bookmark with ;nb,
     " but does not alter the Vim pwd when the project is opened by bookmark with
     " 'o'. This is the perfect behavior to use ;nb to open projects.
-nmap <leader>nr :call RefreshNERDTreeFolder_build()<CR>
+
+nmap <leader>nr :call nerdtree_#RefreshFolder('build')<CR>
+" nmap <leader>nr :call nerdtree_#RefreshFolder('build')<CR>
+" nmap <leader>nr :call RefreshNERDTreeFolder_build()<CR>
 function! RefreshNERDTreeFolder_buildDEV()
     echo "DEV >^.^<"
     /build\/
@@ -1847,7 +3518,8 @@ function! RefreshNERDTreeFolder_build()
     "Bookmarks.
     execute "normal P"
     " find the build/ folder
-    /build\/
+    " /build\/ " old way
+    call search('build') " new way
     execute "normal O"
     execute "normal r"
         " Note this must be 'normal' and not 'normal!' for 'r' to behave as
@@ -1860,6 +3532,7 @@ function! RefreshNERDTreeFolder_build()
     execute "noh"
         " Remove highlighting from the last search
 endfunction
+
 nmap <leader>nR :call RefreshNERDTreeWindow()<CR>
 function! RefreshNERDTreeWindow()
     " Refresh the list of files in the NERDTree window.
@@ -1882,6 +3555,13 @@ function! RefreshNERDTreeWindow()
         " Return to the window where ;nr was invoked.
     endif
 endfunction
+
+" New style
+function! ThisIsANerdtreeWindow()
+    return (&filetype == 'nerdtree') && (&buftype == 'nofile')
+endfunction
+nnoremap <leader>n<Space> :call nerdtree_#RefreshActiveFolder()<CR>
+
     " Refresh the view in the NERDTree window (like after make or make clean).
     " nmap is required for Vim to interpret 'R' as NERDTree-R rather than R.
     " Hence the error: 'not modifiable' if mapped with nnoremap.
@@ -1893,6 +3573,7 @@ endfunction
     "   different window, like the quickfix preview window.
 " NERDTree is my default file browser, but I can still access netrw.
 " Make netrw useable.
+
 let g:netrw_liststyle = 3       " Use tree view.
 let g:netrw_banner = 0          " Hide the banner.
 " let g:netrw_browse_split = 4    " Open in previous window.
@@ -1917,7 +3598,8 @@ nnoremap Y y$
 " Search for the visual block: make a block, hit 's', that's it!
 " TODO: yank into a register so you do not clobber register 0.
 vnoremap s y/<C-R>"<CR>zv
-vnoremap S y?<C-R>"<CR>zv
+"vnoremap S y?<C-R>"<CR>zv
+    "visual mode `S` conflicts with vim-surround
 
 set showmatch
     " Show matching opening brace when closing braces.
@@ -1940,10 +3622,10 @@ set list " Turn on whitespace display but setup toggle.
     "   codepoints for the {lhs} and blank for the {rhs}.
 " Map Alt-E to Ctrl-E to scroll up.
 execute "set <M-e>=\033e"
-nnoremap <M-e> <C-e>
+nnoremap <M-e> <C-y>
 execute "set <M-f>=\033f"
 " Map Alt-F to Ctrl-Y to scroll down.
-nnoremap <M-f> <C-y>
+nnoremap <M-f> <C-e>
 " Map Alt-R to Ctrl-R for redo.
 execute "set <M-r>=\033r"
 nnoremap <M-r> <C-r>
@@ -1987,7 +3669,7 @@ nnoremap <leader>3  /\%1c#<CR>:noh<CR>
 nnoremap <leader>#  ?\%1c#<CR>:noh<CR>
 " Change to the directory of the currently open file.
 " For the active window only:
-nnoremap <leader>lcd :lcd %:p:h<CR>
+"nnoremap <leader>lcd :lcd %:p:h<CR>
 " For all windows:
 nnoremap <leader>cd  :cd  %:p:h<CR>
 " Convert file paths from POSIX to Windows and vice versa.
@@ -2016,7 +3698,7 @@ nnoremap <leader>cw ^v$h"+y:!cygpath -w "<C-r>+" <Bar> clip<CR>"+pky^jP
 " Echo the linenumber before and after a change in folds.
 " nnoremap <leader>zr :call EchoFold()<CR>
 " nnoremap <leader>zr :call UnfoldThenRestoreScroll()<CR>
-nnoremap <leader>zr :call UnfoldThenRestoreScroll()<CR>
+"nnoremap <leader>zr :call UnfoldThenRestoreScroll()<CR>
 function! UnfoldThenRestoreScroll()
     let window_line_number = winline()
     let text_line_number = line(".")
@@ -2028,7 +3710,7 @@ function! UnfoldThenRestoreScroll()
     " Move the window down to restore the original line number.
     execute "normal" window_line_number-1 . "\<C-y>"
 endfunction
-nnoremap <leader>zm :call FoldThenRestoreScroll()<CR>
+"nnoremap <leader>zm :call FoldThenRestoreScroll()<CR>
 function! FoldThenRestoreScroll()
     let window_line_number = winline()
     let text_line_number = line(".")
@@ -2192,10 +3874,14 @@ nnoremap <leader>ev :edit $MYVIMRC<CR>zv
     " Edit the vimrc.
     " If the last cursor location happens to be in a fold, unfold at the cursor.
 let PATH_notes_for_update =
-    \ "/cygdrive/c/Users/Mike/Documents/chromation/txt/updates/notes_for_update.md"
+    \ "/cygdrive/c/Users/Mike/Documents/chromation/txt/updates/notes-for-update/notes_for_update.md"
 nnoremap <leader>en :exec "edit ".PATH_notes_for_update<CR>zv
     " Edit the notes_for_update.
     " If the last cursor location happens to be in a fold, unfold at the cursor.
+let PATH_LIS770_README =
+    \ "/cygdrive/c/chromation-dropbox/Dropbox/c/LIS-770i/README.md"
+nnoremap <leader>el :exec "edit ".PATH_LIS770_README<CR>zv
+    " Edit the work log for the LIS-770i project.
 let PATH_readme =
     \ "/cygdrive/c/chromation-dropbox/Dropbox/c/readme.md"
 nnoremap <leader>er :exec "edit ".PATH_readme<CR>zv
@@ -2214,14 +3900,15 @@ let PATH_earhart_programmer =
 nnoremap <leader>ea :exec "edit ".PATH_earhart_programmer<CR>
 
 " ---Folder Quick Edits--- (;ex - opens the folder 'x')
+"  2018-05-21 update: this functionality is replaced by NERDTree bookmarks
 " C/Make/Linker Learning Project Paths (set latest project to one of these)
-let PATH_SillyExample_project =
-\ '/cygdrive/c/mike-dropbox/Dropbox/programming/c/learn_make/SillyExample/.'
-let PATH_MultiFile_project =
-\ '/cygdrive/c/mike-dropbox/Dropbox/programming/c/learn_make/MultiFile/.'
-" ---Select the latest project---
-let PATH_latest_project = PATH_SillyExample_project
-nnoremap <leader>el :exec "edit ".PATH_latest_project<CR>
+"let PATH_SillyExample_project =
+"\ '/cygdrive/c/mike-dropbox/Dropbox/programming/c/learn_make/SillyExample/.'
+"let PATH_MultiFile_project =
+"\ '/cygdrive/c/mike-dropbox/Dropbox/programming/c/learn_make/MultiFile/.'
+"" ---Select the latest project---
+"let PATH_latest_project = PATH_SillyExample_project
+"nnoremap <leader>el :exec "edit ".PATH_latest_project<CR>
 
 " ---Folder Quick Browse--- (;bx - populates command-line with folder)
 " ---???
@@ -2294,7 +3981,8 @@ let my_notes_colorscheme = "deus"
     " e.g., 'duoduo' bolds .vimrc nicely and none of the others do!
 let my_md_colorscheme = "badwolf"
 let my_c_colorscheme = "badwolf"
-let my_vimrc_colorscheme = "duoduo"
+let my_vimrc_colorscheme = "badwolf"
+let my_vimdiff_colorscheme = "duoduo"
 let my_disassembly_colorscheme = "duoduo"
     " let my_fav_colorscheme = "duoduo"
     " let my_fav_colorscheme = "CandyPaper"
@@ -2335,6 +4023,8 @@ augroup vimrc
     " au BufEnter *
     "     \ :echo "<^.^> Entered a buffer. <^.^>"
     " matchstr() returns "" if there is no match.
+            " \ | exec('colorscheme '.g:my_c_colorscheme)
+            " \ | redraw | file
     au BufEnter *
         \   if matchstr(@%,"notes_for_update") == "notes_for_update"
             \ | exec('colorscheme '.g:my_notes_colorscheme)
@@ -2343,7 +4033,11 @@ augroup vimrc
             \ | exec('colorscheme '.g:my_md_colorscheme)
             \ | redraw | file
         \ | elseif &filetype == "c"
-            \ | exec('colorscheme '.g:my_c_colorscheme)
+            \ | if &diff
+            \ |     exec('colorscheme '.g:my_vimdiff_colorscheme)
+            \ | else
+            \ |     exec('colorscheme '.g:my_c_colorscheme)
+            \ | endif
             \ | redraw | file
         \ | elseif &filetype == "asm"
             \ | exec('colorscheme '.g:my_disassembly_colorscheme)
@@ -2673,6 +4367,10 @@ endfunction
 " I'd like it to work that CTRL-] is the only 
 iabbrev ppp #!/usr/bin/env python<CR># -*- coding: utf-8 -*-
 iabbrev ttt TEST_FAIL_MESSAGE("Implement test.");<CR>
+iabbrev mmm TEST_ASSERT_TRUE_MESSAGE(<CR><BS>
+            \RanAsHoped(mock),           // If this is false,<CR>
+            \WhyDidItFail(mock)          // print this message.<CR>
+            \);
 
 " Tabs! See: http://tedlogan.com/techblog3.html
 " set expandtab: Pressing Tab key inserts spaces.
@@ -2741,9 +4439,14 @@ iabbrev ttt TEST_FAIL_MESSAGE("Implement test.");<CR>
 "     print("This is a Fenced CodeBlock.")
 " ```
 " Set syntax highlighting for vim, python, and c.
-let g:markdown_fenced_languages = ['vim', 'c', 'python', 'make']
-" Learn Markdown:
-" https://guides.github.com/features/mastering-markdown/
+let g:markdown_fenced_languages = ['vim', 'c', 'python', 'make', 'bash=sh']
+" Enable text folding for markdown:
+let g:markdown_folding = 1
+    " Fold at headings using heading hiearchy (#, ##, ###, etc.).
+"let g:markdown_minlines=50
+    "If needed, make this number bigger. Default is 50. It is the number of
+    "lines to synchronize syntax highlighting for fenced codeblocks. If too big
+    "though, it makes highlighting perform badly.
 
 " ---Plugins---
     " git clone single plugins here:
@@ -2810,8 +4513,74 @@ let g:markdown_fenced_languages = ['vim', 'c', 'python', 'make']
 " or something not working, or an idea or an improvement,
 " just come here with ;ev<CR>G and add it below.
 
-
 " ---CHEAT SHEET----
+" commentary: plugin for comments
+"   gcc -   toggle commenting of one line
+" h: index.txt
+    " Vim essentials: text object operators, window commands
+" h: motion.txt
+    " Vim essentials: motions to combine with text object operators
+    " ib is the same as i( or i), just easier to type
+    " ip is already spoken for: p is paragraph
+" h: script-local
+" h: write-library-script
+    " Put .vim libs in an `autoload` folder in your runtimepath.
+    " Set the runtime path in your .vimrc 
+    "   set runtimepath+=~/.vim/pack/bundle/dev
+    " Create an autoload folder there:
+    "   ~/.vim/pack/bundle/dev/autoload
+    " Put a .vim file there:
+    "   ~/.vim/pack/bundle/dev/autoload/folder.vim
+    " All public function names in this `folder` lib start with `folder#`:
+    "   function! folder#Create(path)
+    " Callers of public functions use the same name:
+    "   call folder#Create('proj')
+    " If the function is not defined yet, Vim looks in the autoload folders in
+    " the runtime path until it finds it.
+    " You do not have to source the lib file for Vim to find the function!
+    " But if you edit the function definition, resource that lib file for the
+    " current session to pickup the change.
+    "
+    " Private (script local) names start with s:
+    " Callers of script local names use <SID>.
+" See this for making your own motions:
+"http://learnvimscriptthehardway.stevelosh.com/chapters/15.html
+":onoremap p i(
+"Before you had to do di( to delete in parentheses,
+"now you can do dp.
+function! ExampleUsingInput(folder)
+    "Require user to input 'yes' before deleting a folder."
+    "This example does not delete, it just runs the confirmation.
+    let msg = "STOP! Directory is not empty. To delete, type 'yes'\n"
+                \.a:folder.": "
+    let reply = input(msg)
+    if reply ==# "yes"
+        echo "\nDeleted" a:folder."."
+    else
+        echo "\nNothing was deleted."
+    endif
+endfunction
+function! ExampleUsingConfirm()
+    "Confirm with [yes], [N]o at the console.
+    "This example does not delete, it just runs the confirmation.
+    let path = 'proj'
+    let msg = 'Folder '.path.' is not empty. Are you sure you want to delete it?'
+    let choices = "&yes\n&No"
+        "\n becomes a comma at the console, but `choices` must be in "" not ''
+    let default_to_No = 2
+    let choice = confirm(msg, choices, default_to_No)
+    let canceled = choice == 0
+    if canceled
+        echo 'Operation canceled. Nothing was deleted.'
+        return
+    endif
+    if choice == 1
+        echo 'Deleted' path.'.'
+    elseif choice == 2
+        echo 'Nothing was deleted.'
+    endif
+endfunction
+
 "---Range---
     " http://vim.wikia.com/wiki/Ranges
 ":h indent - indent({lnum}) - Return a number with the indent of line {lnum}
@@ -2979,6 +4748,8 @@ let g:markdown_fenced_languages = ['vim', 'c', 'python', 'make']
     " <A-w>:    -   get to the Vim command line.
     "               In a terminal window, all Vim commands must be preceded with
     "               <C-W> or 'termkey'.
+    " Switch windows: <C-w>{motion}
+    " Switch to the Vim command line: <C-w>:
 " Development:
 " ;nb   -   Tab through bookmarked projects.
 " NERDTree cd   -   change Vim current directory to node under cursor
@@ -3296,7 +5067,7 @@ let g:markdown_fenced_languages = ['vim', 'c', 'python', 'make']
     " ---File browsing---
         " ;nt       -   toggle a tall-left NERDTree window.
         " ;nf       -   NERDTree explore the current buffer
-        " ;nv       -   NERDTree explore the current Vim directory
+        " ;ne<CR>   -   NERDTree explore the current Vim directory
         " Do not file browse with :e . anymore:
             " :e .      -   starts browsing the current Vim directory,
             "               but it replaces the view in the current buffer.
@@ -3405,6 +5176,7 @@ let g:markdown_fenced_languages = ['vim', 'c', 'python', 'make']
     " :ls # - List the alternate file (the <C-^> file).
 " Change the active directory:
     " ;lcd      -   Change to the directory of the currently open file (%:p:h)
+    "           -   I took this out of service to use ;l for links.
 " Convert path type and paste below:
     " ;cw       -   converts POSIX path to Windows
     " ;cp       -   converts Windows path to POSIX
@@ -3449,6 +5221,8 @@ let g:markdown_fenced_languages = ['vim', 'c', 'python', 'make']
         " /vim\('s\|diff\)  -   Find "Vim's" or "Vimdiff" and ignore case
     " Find any character that is not:
         " /[^a]     -   Any character that is not 'a'
+        "   Example: /Usb[^F] finds all instances of `Usb` where the next
+        "   character is not `F`
         " /[^\.]    -   Any character that is not '.'
         " /[^\.]log -   Find log, not .log
         " The [] syntax defines a range. Anything can go in that range, e.g.:
@@ -3496,7 +5270,7 @@ let g:markdown_fenced_languages = ['vim', 'c', 'python', 'make']
         " /search_for/2    -   After you land on the word, go 2 lines down
         " /search_for/-2   -   After you land on the word, go 2 lines up
     " :set nowrapscan   -   search without wrapping around
-    " Use Ctrl-B (remapped from Ctrl-V) to enter eol character ^M.
+    " Use Ctrl-B (remapped from Ctrl-V) to enter eol / end-of-line / carriage return character ^M.
         " In order to search for ^M and delete it   -   :s/^M//
         " This is how that expression is typed      -   :s/Ctrl-B<CR>//
 " Folds:
@@ -3614,16 +5388,45 @@ let g:markdown_fenced_languages = ['vim', 'c', 'python', 'make']
     "               benefits.
 
 " ---HOW DO I?---
+" Copy messages to a register to paste?
+    " `:messages clear`
+    " Do the thing to generate the message
+    " Example: NERDTree `ml` to list information about a node
+    " `:redir @m | messages | redir END`
+    " `"mp` to paste register `m`
+" Count the number of times 'RUN_TEST' occurs
+    " see h: count-items
+    " :%s/RUN_TEST//n
+    " on a visual selection
+    " '<,'>s/RUN_TEST//n
+" Define new text objects:
+    " 1. I want to `w` through CamelCase words to each capital.
+" Make a shortcut atomic:
+    " All of my ;wI type commands are not atomic. How do I repeat these with the
+    " dot command? See TPope Repeat.vim plugin.
+"  Check this out!! h CursorHold-example
+"
+"  Write a shortcut that takes a {count} argument?
 " Unittest Vimscript: see :h testing
-    "[ ] Color a readonly window (maybe a little greyed out).
-        "This is impossible. But I can change the color of the status line.
-        ":h hl-StatusLine
-        "Does Tabulous do this? No. Search for /TabLine.
-        ""Check if the buffer is readonly.
-        ":if &readonly
-        ":  "Change StatusLine color.
-        "   "Link it to WarningMsg or NERDTreeRO
-        ":endif
+    " Initial thoughts:
+    " 1. .vimrc has a section to source a Vimscript for a specific
+    "    functionality, like my own internal plugin, e.g., ;ym YankIntoMock
+    " 2. work on the Vimscript in a folder of internal plugins
+    "    purpose: easy to recreate dotfiles on a new machine
+    " 3. if you call these Plugins, then for each Plugin.vim there is another
+    "    Vimscript named test_Plugin.vim which contains the unit tests for
+    "    Plugin.vim.
+    " 4. YankIntoMock works on files in a project. The test needs to create
+    "    files to work on, and then delete those files when the test is done.
+"[ ] Color a readonly window (maybe a little greyed out).
+    "This is impossible. But I can change the color of the status line.
+    ":h hl-StatusLine
+    "Does Tabulous do this? No. Search for /TabLine.
+    ""Check if the buffer is readonly.
+    ":if &readonly
+    ":  "Change StatusLine color.
+    "   "Link it to WarningMsg or NERDTreeRO
+    ":endif
 " [x] Enter unicode character text:
     " see :h utf-8-typing
         " Type any character as four hex bytes:
@@ -3678,7 +5481,7 @@ let g:markdown_fenced_languages = ['vim', 'c', 'python', 'make']
         "   <C-^>   -   Toggle the keymap mode on/off
         "
         "
-        " =====[ xxxxxxxxxxxxxxxxxxxxxxx ]=====
+        " =====[ Kurt's Minecraft Handle ]=====
         "
         "   理越智
         "   " Pinyin    Character   UTF-8 Code Point (Hex)
